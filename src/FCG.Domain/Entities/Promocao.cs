@@ -10,6 +10,9 @@ namespace FCG.Domain.Entities
         public decimal ValorDesconto { get; private set; }
         public DateTime DataValidade { get; private set; }
 
+        //EF
+        protected Promocao() { }
+
         public Promocao(Guid id, string cupom, string descricao, TipoDesconto tipoDesconto,
                         decimal valorDesconto, DateTime dataValidade, DateTime dataCadastro)
         {

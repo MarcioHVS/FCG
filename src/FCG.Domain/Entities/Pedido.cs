@@ -9,6 +9,9 @@
         public Usuario Usuario { get; set; }
         public Jogo Jogo { get; set; }
 
+        //EF
+        protected Pedido() { }
+
         public Pedido(Guid id, Guid usuarioId, Guid jogoId, decimal valor, DateTime dataCadastro)
         {
             Id = id;

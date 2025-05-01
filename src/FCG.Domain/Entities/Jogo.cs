@@ -11,6 +11,9 @@ namespace FCG.Domain.Entities
 
         public ICollection<Pedido> Pedidos { get; set; }
 
+        //EF
+        protected Jogo() { }
+
         public Jogo(Guid id, string titulo, string descricao, Genero genero, decimal valor, DateTime dataCadastro)
         {
             Id = id;
