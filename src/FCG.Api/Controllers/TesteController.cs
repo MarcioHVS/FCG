@@ -15,6 +15,7 @@ namespace FCG.Api.Controllers
         [HttpGet("Teste2")]
         public string Teste2()
         {
+            throw new UnauthorizedAccessException("Teste de erro");
             return "Teste2 Ok";
         }
     }

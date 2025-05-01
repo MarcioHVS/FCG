@@ -1,4 +1,5 @@
-﻿using FCG.Infrastructure.Context;
+﻿using FCG.Api.Middleware;
+using FCG.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace FCG.Api.Configurations
@@ -19,6 +20,7 @@ namespace FCG.Api.Configurations
 
         public static WebApplication UseApiConfiguration(this WebApplication app)
         {
+            app.UseMiddleware<TratamentoErrosMiddleware>();
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
