@@ -1,4 +1,5 @@
 ﻿using FCG.Domain.Entities;
+using FCG.Domain.Exceptions;
 using FCG.Domain.Interfaces;
 using FCG.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -16,10 +17,15 @@ namespace FCG.Infrastructure.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public virtual async Task<T> ObterPorIdAsync(Guid id)
+        public virtual async Task<bool> ExisteIdAsync(Guid id)
+        {
+            return await _dbSet.AnyAsync(e => e.Id == id);
+        }
+
+        public virtual async Task<T?> ObterPorIdAsync(Guid id)
         {
             return await _dbSet.AsNoTracking()
-                .FirstAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public virtual async Task<IEnumerable<T>> ObterTodosAsync()
@@ -29,12 +35,23 @@ namespace FCG.Infrastructure.Repositories
 
         public async Task Adicionar(T entidade)
         {
+            entidade.Ativar();
             _dbSet.Add(entidade);
             await _context.Salvar();
         }
 
         public async Task Alterar(T entidade)
         {
+            var entidadeBD = await ObterEntidadeAsync(entidade.Id);
+
+            if (entidadeBD is null)
+                throw new OperacaoInvalidaException("Registro não encontrado");
+
+            if (entidadeBD.Ativo)
+                entidade.Ativar();
+            else
+                entidade.Desativar();
+
             _dbSet.Update(entidade);
             await _context.Salvar();
         }

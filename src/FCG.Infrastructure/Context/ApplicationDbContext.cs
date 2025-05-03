@@ -27,14 +27,17 @@ namespace FCG.Infrastructure.Context
                 .Where(entry => entry.Entity.GetType().GetProperty("DataCadastro") != null))
             {
                 if (entry.State == EntityState.Added)
-                {
                     entry.Property("DataCadastro").CurrentValue = DateTime.Now;
-                }
 
                 if (entry.State == EntityState.Modified)
-                {
                     entry.Property("DataCadastro").IsModified = false;
-                }
+            }
+
+            foreach (var entry in ChangeTracker.Entries<Usuario>())
+            {
+                var senhaProperty = entry.Property("Senha");
+                if (entry.State == EntityState.Modified && senhaProperty.CurrentValue is string senha && string.IsNullOrEmpty(senha))
+                    senhaProperty.IsModified = false;
             }
 
             var salvo = await base.SaveChangesAsync() > 0;

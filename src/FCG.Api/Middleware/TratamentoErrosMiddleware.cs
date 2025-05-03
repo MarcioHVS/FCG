@@ -19,6 +19,14 @@ namespace FCG.Api.Middleware
             {
                 await _next(context);
             }
+            catch (ConflitoException ex)
+            {
+                await RegistrarErroAsync(context, ex, StatusCodes.Status409Conflict, ex.Message);
+            }
+            catch (OperacaoInvalidaException ex)
+            {
+                await RegistrarErroAsync(context, ex, StatusCodes.Status422UnprocessableEntity, ex.Message);
+            }
             catch (ArgumentNullException ex)
             {
                 await RegistrarErroAsync(context, ex, StatusCodes.Status400BadRequest, "Parâmetro ausente ou inválido");
@@ -33,7 +41,7 @@ namespace FCG.Api.Middleware
             }
             catch (CredenciaisInvalidasException ex)
             {
-                await RegistrarErroAsync(context, ex, StatusCodes.Status404NotFound, "Usuário ou senha inválidos");
+                await RegistrarErroAsync(context, ex, StatusCodes.Status401Unauthorized, ex.Message);
             }
             catch (Exception ex)
             {
@@ -49,14 +57,23 @@ namespace FCG.Api.Middleware
             context.Response.ContentType = "application/json";
 
             var env = context.RequestServices.GetRequiredService<IHostEnvironment>();
+            var mensagemDetalhada = env.IsDevelopment() && mensagem != ex.Message
+                ? $"{mensagem} - {ex.Message}"
+                : mensagem;
 
             var errorResponse = new
             {
                 StatusCode = statusCode,
-                Mesagem = env.IsDevelopment() ? $"{mensagem} - {ex.Message}" : mensagem
+                Mensagem = mensagemDetalhada
             };
 
-            await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(errorResponse));
+            var jsonOptions = new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
+
+            await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(errorResponse, jsonOptions));
         }
     }
 }

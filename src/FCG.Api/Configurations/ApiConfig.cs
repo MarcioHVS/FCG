@@ -1,5 +1,6 @@
 ﻿using FCG.Api.Middleware;
 using FCG.Infrastructure.Context;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FCG.Api.Configurations
@@ -8,6 +9,9 @@ namespace FCG.Api.Configurations
     {
         public static WebApplicationBuilder AddApiConfiguration(this WebApplicationBuilder builder)
         {
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+                options.SuppressModelStateInvalidFilter = true);
+
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 

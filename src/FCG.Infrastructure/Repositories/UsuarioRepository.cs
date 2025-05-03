@@ -20,16 +20,16 @@ namespace FCG.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Apelido.Equals(apelido));
         }
 
-        public async Task<bool> ExisteApelidoAsync(string apelido)
+        public async Task<bool> ExisteApelidoAsync(string apelido, Guid usuarioId)
         {
             return await _context.Usuarios.AsNoTracking()
-                .Where(u => u.Apelido.Equals(apelido)).AnyAsync();
+                .Where(u => !u.Id.Equals(usuarioId) && u.Apelido.Equals(apelido)).AnyAsync();
         }
 
-        public async Task<bool> ExisteEmailAsync(string email)
+        public async Task<bool> ExisteEmailAsync(string email, Guid usuarioId)
         {
             return await _context.Usuarios.AsNoTracking()
-                .Where(u => u.Email.Endereco.Equals(email)).AnyAsync();
+                .Where(u => !u.Id.Equals(usuarioId) && u.Email.Endereco.Equals(email)).AnyAsync();
         }
     }
 }

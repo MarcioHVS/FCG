@@ -6,21 +6,26 @@ namespace FCG.Application.Mappers
 {
     public static class UsuarioMapper
     {
-        public static Usuario ToDomain(this UsuarioDto usuarioDto)
+        public static Usuario Adicionar(this UsuarioAdicionarDto usuarioDto)
         {
-            return new Usuario(usuarioDto.Id, usuarioDto.Nome, usuarioDto.Apelido, new Email(usuarioDto.Email),
-                               usuarioDto.Senha, usuarioDto.Role, usuarioDto.DataCadastro);
+            return new Usuario(Guid.NewGuid(), usuarioDto.Nome, usuarioDto.Apelido, 
+                               new Email(usuarioDto.Email), usuarioDto.Senha, usuarioDto.Role);
         }
 
-        public static UsuarioDto ToDto(this Usuario usuario)
+        public static Usuario Alterar(this UsuarioAlterarDto usuarioDto)
         {
-            return new UsuarioDto
+            return new Usuario(usuarioDto.Id, usuarioDto.Nome, usuarioDto.Apelido, 
+                               new Email(usuarioDto.Email), string.Empty, usuarioDto.Role);
+        }
+
+        public static UsuarioResponseDto Retornar(this Usuario usuario)
+        {
+            return new UsuarioResponseDto
             {
                 Id = usuario.Id,
                 Nome = usuario.Nome,
                 Apelido = usuario.Apelido,
                 Email = usuario.Email.Endereco,
-                Senha = usuario.Senha,
                 Role = usuario.Role,
                 DataCadastro = usuario.DataCadastro
             };

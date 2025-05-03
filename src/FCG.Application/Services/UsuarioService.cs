@@ -1,5 +1,9 @@
 ﻿using FCG.Application.Entities;
 using FCG.Application.Interfaces;
+using FCG.Application.Mappers;
+using FCG.Domain.Entities;
+using FCG.Domain.Enums;
+using FCG.Domain.Exceptions;
 using FCG.Domain.Interfaces;
 
 namespace FCG.Application.Services
@@ -13,39 +17,55 @@ namespace FCG.Application.Services
             _usuarioRepository = usuarioRepository;
         }
 
-        public async Task AdicionarUsuario(UsuarioDto usuarioDto)
+        public async Task<UsuarioResponseDto> LoginAsync(LoginDto login)
         {
-            throw new NotImplementedException();
+            var usuario = await _usuarioRepository.ObterUsuarioPorApelidoAsync(login.Apelido)
+                ?? throw new CredenciaisInvalidasException();
+
+            if (!usuario.ValidarSenha(login.Senha))
+                throw new CredenciaisInvalidasException();
+
+            if(!usuario.Ativo)
+                throw new OperacaoInvalidaException("Login não permitido: sua conta não está ativa no sistema");
+
+            return usuario.Retornar();
         }
 
-        public async Task AlterarUsuario(UsuarioDto usuarioDto)
+        public async Task<UsuarioResponseDto> ObterUsuarioAsync(Guid usuarioId)
         {
-            throw new NotImplementedException();
+            var usuario = await _usuarioRepository.ObterPorIdAsync(usuarioId)
+                ?? throw new KeyNotFoundException("Usuário não encontrado com o Id informado");
+
+            return usuario.Retornar();
+        }
+
+        public async Task<IEnumerable<UsuarioResponseDto>> ObterUsuariosAsync()
+        {
+            var usuarios = await _usuarioRepository.ObterTodosAsync();
+
+            return usuarios.Select(u => u.Retornar());
+        }
+
+        public async Task AdicionarUsuario(UsuarioAdicionarDto usuarioDto)
+        {
+            await _usuarioRepository.Adicionar(usuarioDto.Adicionar());
+        }
+
+        public async Task AlterarUsuario(UsuarioAlterarDto usuarioDto)
+        {
+            var usuario = usuarioDto.Alterar();
+
+            await _usuarioRepository.Alterar(usuario);
         }
 
         public async Task AtivarUsuario(Guid usuarioId)
         {
-            throw new NotImplementedException();
+            await _usuarioRepository.Ativar(usuarioId);
         }
 
         public async Task DesativarUsuario(Guid usuarioId)
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task<UsuarioDto> LoginAsync(LoginDto login)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<UsuarioDto> ObterUsuarioAsync(Guid usuarioId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IEnumerable<UsuarioDto>> ObterUsuariosAsync()
-        {
-            throw new NotImplementedException();
+            await _usuarioRepository.Desativar(usuarioId);
         }
     }
 }

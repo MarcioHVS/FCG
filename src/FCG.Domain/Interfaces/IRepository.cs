@@ -4,7 +4,7 @@ namespace FCG.Domain.Interfaces
 {
     public interface IRepository<T> where T : EntityBase
     {
-        Task<T> ObterPorIdAsync(Guid id);
+        Task<T?> ObterPorIdAsync(Guid id);
         Task<IEnumerable<T>> ObterTodosAsync();
         Task Adicionar(T entidade);
         Task Alterar(T entidade);
