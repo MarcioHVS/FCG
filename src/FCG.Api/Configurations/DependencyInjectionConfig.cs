@@ -10,6 +10,12 @@ namespace MGO.Cliente.Api.Configurations
     {
         public static WebApplicationBuilder RegisterDependencies(this WebApplicationBuilder builder)
         {
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
+                ?? throw new InvalidOperationException("Configuração JWT não encontrada no appsettings.json.");
+            builder.Services.AddSingleton(jwtSettings);
+
+            builder.Services.AddScoped<IJwtService, JwtService>();
+
             builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
             builder.Services.AddScoped<IJogoRepository, JogoRepository>();
             builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();

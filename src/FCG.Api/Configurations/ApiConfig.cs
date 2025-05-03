@@ -2,6 +2,7 @@
 using FCG.Infrastructure.Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace FCG.Api.Configurations
 {
@@ -17,7 +18,8 @@ namespace FCG.Api.Configurations
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddAuthorization();
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
             return builder;
         }
