@@ -27,9 +27,7 @@ namespace FCG.Domain.Entities
             Role = role;
         }
 
-        public bool ValidarSenha(string senha)
-        {
-            return Argon2.Verify(Senha, senha);
-        }
+        public void AlterarSenha(string novaSenha) => Senha = Argon2.Hash(novaSenha);
+        public bool ValidarSenha(string senha) => Argon2.Verify(Senha, senha);
     }
 }

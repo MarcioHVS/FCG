@@ -1,8 +1,6 @@
 ﻿using FCG.Application.Entities;
 using FCG.Application.Interfaces;
 using FCG.Application.Mappers;
-using FCG.Domain.Entities;
-using FCG.Domain.Enums;
 using FCG.Domain.Exceptions;
 using FCG.Domain.Interfaces;
 
@@ -54,6 +52,14 @@ namespace FCG.Application.Services
         public async Task AlterarUsuario(UsuarioAlterarDto usuarioDto)
         {
             var usuario = usuarioDto.Alterar();
+
+            await _usuarioRepository.Alterar(usuario);
+        }
+
+        public async Task AlterarSenha(Guid usuarioId, string novaSenha)
+        {
+            var usuario = await _usuarioRepository.ObterPorIdAsync(usuarioId);
+            usuario?.AlterarSenha(novaSenha);
 
             await _usuarioRepository.Alterar(usuario);
         }

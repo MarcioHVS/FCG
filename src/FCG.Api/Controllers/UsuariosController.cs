@@ -78,6 +78,20 @@ namespace FCG.Api.Controllers
         }
 
         [Authorize(Roles = "Usuario,Administrador")]
+        [HttpPut("AlterarSenha")]
+        public async Task<IActionResult> AlterarSenha(string novaSenha)
+        {
+            if (!ValidarModelo())
+                return CustomResponse();
+
+            var usuarioId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            await _usuario.AlterarSenha(Guid.Parse(usuarioId), novaSenha);
+
+            return CustomResponse("Senha alterada com sucesso");
+        }
+
+        [Authorize(Roles = "Usuario,Administrador")]
         [HttpPut("AtivarUsuario")]
         public async Task<IActionResult> AtivarUsuario(Guid usuarioId)
         {
