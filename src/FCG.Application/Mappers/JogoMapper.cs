@@ -1,5 +1,5 @@
 ﻿using FCG.Domain.Entities;
-using FCG.Application.Entities;
+using FCG.Application.DTOs;
 
 namespace FCG.Application.Mappers
 {

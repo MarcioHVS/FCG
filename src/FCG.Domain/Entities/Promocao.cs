@@ -14,7 +14,7 @@ namespace FCG.Domain.Entities
         protected Promocao() { }
 
         public Promocao(Guid id, string cupom, string descricao, TipoDesconto tipoDesconto,
-                        decimal valorDesconto, DateTime dataValidade, DateTime dataCadastro)
+                        decimal valorDesconto, DateTime dataValidade)
         {
             Id = id;
             Cupom = cupom;
@@ -22,7 +22,6 @@ namespace FCG.Domain.Entities
             TipoDesconto = tipoDesconto;
             ValorDesconto = valorDesconto;
             DataValidade = dataValidade;
-            DataCadastro = dataCadastro;
         }
     }
 }

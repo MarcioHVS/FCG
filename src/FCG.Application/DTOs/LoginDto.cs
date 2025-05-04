@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FCG.Application.Entities
+namespace FCG.Application.DTOs
 {
     public class LoginDto
     {

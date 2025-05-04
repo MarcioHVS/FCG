@@ -1,4 +1,4 @@
-﻿using FCG.Application.Entities;
+﻿using FCG.Application.DTOs;
 using FCG.Application.Interfaces;
 using FCG.Application.Mappers;
 using FCG.Domain.Interfaces;
@@ -26,7 +26,7 @@ namespace FCG.Application.Services
         {
             var jogos = await _jogoRepository.ObterTodosAsync();
 
-            return jogos.Select(u => u.ToDto());
+            return jogos.Select(j => j.ToDto());
         }
 
         public async Task AdicionarJogo(JogoAdicionarDto jogoDto)
@@ -36,9 +36,7 @@ namespace FCG.Application.Services
 
         public async Task AlterarJogo(JogoAlterarDto jogoDto)
         {
-            var jogo = jogoDto.ToDomain();
-
-            await _jogoRepository.Alterar(jogo);
+            await _jogoRepository.Alterar(jogoDto.ToDomain());
         }
 
         public async Task AtivarJogo(Guid jogoId)

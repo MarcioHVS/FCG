@@ -1,5 +1,5 @@
 ﻿using FCG.Domain.Entities;
-using FCG.Application.Entities;
+using FCG.Application.DTOs;
 
 namespace FCG.Application.Mappers
 {
@@ -8,7 +8,7 @@ namespace FCG.Application.Mappers
         public static Promocao ToDomain(this PromocaoDto promocaoDto)
         {
             return new Promocao(promocaoDto.Id, promocaoDto.Cupom, promocaoDto.Descricao, promocaoDto.TipoDesconto,
-                                promocaoDto.ValorDesconto, promocaoDto.DataValidade, promocaoDto.DataCadastro);
+                                promocaoDto.ValorDesconto, promocaoDto.DataValidade);
         }
 
         public static PromocaoDto ToDto(this Promocao promocao)

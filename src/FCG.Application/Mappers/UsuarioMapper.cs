@@ -1,6 +1,6 @@
 ﻿using FCG.Domain.Entities;
 using FCG.Domain.ValueObjects;
-using FCG.Application.Entities;
+using FCG.Application.DTOs;
 
 namespace FCG.Application.Mappers
 {

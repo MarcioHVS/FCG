@@ -1,4 +1,4 @@
-﻿using FCG.Application.Entities;
+﻿using FCG.Application.DTOs;
 using FCG.Application.Interfaces;
 using FCG.Domain.Interfaces;
 

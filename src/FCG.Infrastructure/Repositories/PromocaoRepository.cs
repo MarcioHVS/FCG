@@ -14,10 +14,10 @@ namespace FCG.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<bool> ExisteCupomAsync(string cupom)
+        public async Task<Promocao?> ObterPromocaoPorCupomAsync(string cupom)
         {
             return await _context.Promocoes
-                .AnyAsync(p => p.Cupom.Equals(cupom) && p.DataValidade >= DateTime.Now);
+                .FirstOrDefaultAsync(p => p.Cupom.Equals(cupom) && p.DataValidade >= DateTime.Now);
         }
 
         public override async Task<IEnumerable<Promocao>> ObterTodosAsync()

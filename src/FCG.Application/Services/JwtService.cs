@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using FCG.Application.Interfaces;
-using FCG.Application.Entities;
+using FCG.Application.DTOs;
 
 namespace FCG.Application.Services
 {

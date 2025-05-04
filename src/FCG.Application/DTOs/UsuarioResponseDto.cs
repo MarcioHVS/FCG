@@ -1,6 +1,6 @@
 ﻿using FCG.Domain.Enums;
 
-namespace FCG.Application.Entities
+namespace FCG.Application.DTOs
 {
     public class UsuarioResponseDto
     {

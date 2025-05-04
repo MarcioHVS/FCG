@@ -1,24 +1,43 @@
 ﻿using FCG.Domain.Entities;
-using FCG.Application.Entities;
+using FCG.Application.DTOs;
 
 namespace FCG.Application.Mappers
 {
     public static class PedidoMapper
     {
-        public static Pedido ToDomain(this PedidoDto pedidoDto)
+        public static Pedido ToDomain(this PedidoAdicionarDto pedidoDto)
         {
-            return new Pedido(pedidoDto.Id, pedidoDto.UsuarioId, pedidoDto.JogoId,
-                              pedidoDto.Valor, pedidoDto.DataCadastro);
+            return new Pedido(Guid.NewGuid(), pedidoDto.UsuarioId, pedidoDto.JogoId);
         }
 
-        public static PedidoDto ToDto(this Pedido pedido)
+        public static Pedido ToDomain(this PedidoAlterarDto pedidoDto)
         {
-            return new PedidoDto
+            return new Pedido(pedidoDto.Id, pedidoDto.UsuarioId, pedidoDto.JogoId);
+        }
+
+        public static PedidoResponseDto ToDto(this Pedido pedido)
+        {
+            return new PedidoResponseDto
             {
                 Id = pedido.Id,
-                UsuarioId = pedido.UsuarioId,
-                JogoId = pedido.JogoId,
-                Valor = pedido.Valor,
+                Usuario = new UsuarioResponseDto
+                            {
+                                Id = pedido.Usuario.Id,
+                                Nome = pedido.Usuario.Nome,
+                                Apelido = pedido.Usuario.Apelido,
+                                Email = pedido.Usuario.Email.Endereco,
+                                Role = pedido.Usuario.Role,
+                                DataCadastro = pedido.Usuario.DataCadastro
+                            },
+                Jogo = new JogoResponseDto
+                            {
+                                Id = pedido.Jogo.Id,
+                                Titulo = pedido.Jogo.Titulo,
+                                Descricao = pedido.Jogo.Descricao,
+                                Genero = pedido.Jogo.Genero,
+                                Valor = pedido.Valor,
+                                DataCadastro = pedido.DataCadastro
+                            },
                 DataCadastro = pedido.DataCadastro
             };
         }

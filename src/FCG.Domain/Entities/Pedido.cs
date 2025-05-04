@@ -1,4 +1,7 @@
-﻿namespace FCG.Domain.Entities
+﻿using FCG.Domain.Enums;
+using FCG.Domain.Exceptions;
+
+namespace FCG.Domain.Entities
 {
     public class Pedido : EntityBase
     {
@@ -12,13 +15,37 @@
         //EF
         protected Pedido() { }
 
-        public Pedido(Guid id, Guid usuarioId, Guid jogoId, decimal valor, DateTime dataCadastro)
+        public Pedido(Guid id, Guid usuarioId, Guid jogoId)
         {
             Id = id;
             UsuarioId = usuarioId;
             JogoId = jogoId;
-            Valor = valor;
-            DataCadastro = dataCadastro;
+        }
+
+        public void CalcularValor(decimal valor, TipoDesconto tipoDesconto, decimal desconto)
+        {
+            if (valor <= 0)
+            {
+                throw new OperacaoInvalidaException("O valor do desconto deve ser maior que zero.");
+            }
+
+            switch (tipoDesconto)
+            {
+                case TipoDesconto.Moeda:
+                    Valor = Math.Max(0, valor - desconto);
+                    break;
+
+                case TipoDesconto.Percentual:
+                    if (desconto < 0 || desconto > 100)
+                    {
+                        throw new OperacaoInvalidaException("O desconto percentual deve estar entre 0 e 100.");
+                    }
+                    Valor = Math.Max(0, valor - (valor * (desconto / 100)));
+                    break;
+
+                default:
+                    throw new OperacaoInvalidaException("Tipo de desconto inválido.");
+            }
         }
     }
 }
