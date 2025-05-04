@@ -5,23 +5,28 @@ namespace FCG.Application.Mappers
 {
     public static class PromocaoMapper
     {
-        public static Promocao ToDomain(this PromocaoDto promocaoDto)
+        public static Promocao ToDomain(this PromocaoAdicionarDto promocaoDto)
+        {
+            return new Promocao(Guid.NewGuid(), promocaoDto.Cupom, promocaoDto.Descricao, promocaoDto.TipoDesconto,
+                                promocaoDto.ValorDesconto, promocaoDto.DataValidade);
+        }
+
+        public static Promocao ToDomain(this PromocaoAlterarDto promocaoDto)
         {
             return new Promocao(promocaoDto.Id, promocaoDto.Cupom, promocaoDto.Descricao, promocaoDto.TipoDesconto,
                                 promocaoDto.ValorDesconto, promocaoDto.DataValidade);
         }
 
-        public static PromocaoDto ToDto(this Promocao promocao)
+        public static PromocaoResponseDto ToDto(this Promocao promocao)
         {
-            return new PromocaoDto
+            return new PromocaoResponseDto
             {
                 Id = promocao.Id,
                 Cupom = promocao.Cupom,
                 Descricao = promocao.Descricao,
                 TipoDesconto = promocao.TipoDesconto,
                 ValorDesconto = promocao.ValorDesconto,
-                DataValidade = promocao.DataValidade,
-                DataCadastro = promocao.DataCadastro
+                DataValidade = promocao.DataValidade
             };
         }
     }

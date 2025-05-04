@@ -4,10 +4,10 @@ namespace FCG.Application.Interfaces
 {
     public interface IPromocaoService
     {
-        Task<PromocaoDto> ObterPromocaoAsync(Guid promocaoId);
-        Task<IEnumerable<PromocaoDto>> ObterPromocoesAsync();
-        Task AdicionarPromocao(PromocaoDto promocaoDto);
-        Task AlterarPromocao(PromocaoDto promocaoDto);
+        Task<PromocaoResponseDto> ObterPromocaoAsync(Guid promocaoId);
+        Task<IEnumerable<PromocaoResponseDto>> ObterPromocoesAsync();
+        Task AdicionarPromocao(PromocaoAdicionarDto promocaoDto);
+        Task AlterarPromocao(PromocaoAlterarDto promocaoDto);
         Task AtivarPromocao(Guid promocaoId);
         Task DesativarPromocao(Guid promocaoId);
     }

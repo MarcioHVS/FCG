@@ -1,5 +1,6 @@
 ﻿using FCG.Application.DTOs;
 using FCG.Application.Interfaces;
+using FCG.Application.Mappers;
 using FCG.Domain.Interfaces;
 
 namespace FCG.Application.Services
@@ -13,34 +14,39 @@ namespace FCG.Application.Services
             _promocaoRepository = promocaoRepository;
         }
 
-        public async Task<PromocaoDto> ObterPromocaoAsync(Guid promocaoId)
+        public async Task<PromocaoResponseDto> ObterPromocaoAsync(Guid promocaoId)
         {
-            throw new NotImplementedException();
+            var promocao = await _promocaoRepository.ObterPorIdAsync(promocaoId)
+                ?? throw new KeyNotFoundException("Promoção não encontrada com o Id informado");
+
+            return promocao.ToDto();
         }
 
-        public async Task<IEnumerable<PromocaoDto>> ObterPromocoesAsync()
+        public async Task<IEnumerable<PromocaoResponseDto>> ObterPromocoesAsync()
         {
-            throw new NotImplementedException();
+            var promocoes = await _promocaoRepository.ObterTodosAsync();
+
+            return promocoes.Select(p => p.ToDto());
         }
 
-        public async Task AdicionarPromocao(PromocaoDto promocaoDto)
+        public async Task AdicionarPromocao(PromocaoAdicionarDto promocaoDto)
         {
-            throw new NotImplementedException();
+            await _promocaoRepository.Adicionar(promocaoDto.ToDomain());
         }
 
-        public async Task AlterarPromocao(PromocaoDto promocaoDto)
+        public async Task AlterarPromocao(PromocaoAlterarDto promocaoDto)
         {
-            throw new NotImplementedException();
+            await _promocaoRepository.Alterar(promocaoDto.ToDomain());
         }
 
         public async Task AtivarPromocao(Guid promocaoId)
         {
-            throw new NotImplementedException();
+            await _promocaoRepository.Ativar(promocaoId);
         }
 
         public async Task DesativarPromocao(Guid promocaoId)
         {
-            throw new NotImplementedException();
+            await _promocaoRepository.Desativar(promocaoId);
         }
     }
 }
