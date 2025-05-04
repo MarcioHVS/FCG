@@ -26,7 +26,7 @@ namespace FCG.Application.Services
             if(!usuario.Ativo)
                 throw new OperacaoInvalidaException("Login não permitido: sua conta não está ativa no sistema");
 
-            return usuario.Retornar();
+            return usuario.ToDto();
         }
 
         public async Task<UsuarioResponseDto> ObterUsuarioAsync(Guid usuarioId)
@@ -34,24 +34,24 @@ namespace FCG.Application.Services
             var usuario = await _usuarioRepository.ObterPorIdAsync(usuarioId)
                 ?? throw new KeyNotFoundException("Usuário não encontrado com o Id informado");
 
-            return usuario.Retornar();
+            return usuario.ToDto();
         }
 
         public async Task<IEnumerable<UsuarioResponseDto>> ObterUsuariosAsync()
         {
             var usuarios = await _usuarioRepository.ObterTodosAsync();
 
-            return usuarios.Select(u => u.Retornar());
+            return usuarios.Select(u => u.ToDto());
         }
 
         public async Task AdicionarUsuario(UsuarioAdicionarDto usuarioDto)
         {
-            await _usuarioRepository.Adicionar(usuarioDto.Adicionar());
+            await _usuarioRepository.Adicionar(usuarioDto.ToDomain());
         }
 
         public async Task AlterarUsuario(UsuarioAlterarDto usuarioDto)
         {
-            var usuario = usuarioDto.Alterar();
+            var usuario = usuarioDto.ToDomain();
 
             await _usuarioRepository.Alterar(usuario);
         }

@@ -4,10 +4,10 @@ namespace FCG.Application.Interfaces
 {
     public interface IJogoService
     {
-        Task<JogoDto> ObterJogoAsync(Guid jogoId);
-        Task<IEnumerable<JogoDto>> ObterJogosAsync();
-        Task AdicionarJogo(JogoDto jogoDto);
-        Task AlterarJogo(JogoDto jogoDto);
+        Task<JogoResponseDto> ObterJogoAsync(Guid jogoId);
+        Task<IEnumerable<JogoResponseDto>> ObterJogosAsync();
+        Task AdicionarJogo(JogoAdicionarDto jogoDto);
+        Task AlterarJogo(JogoAlterarDto jogoDto);
         Task AtivarJogo(Guid jogoId);
         Task DesativarJogo(Guid jogoId);
     }

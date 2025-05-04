@@ -1,5 +1,6 @@
 ﻿using FCG.Application.Entities;
 using FCG.Application.Interfaces;
+using FCG.Application.Mappers;
 using FCG.Domain.Interfaces;
 
 namespace FCG.Application.Services
@@ -13,34 +14,41 @@ namespace FCG.Application.Services
             _jogoRepository = jogoRepository;
         }
 
-        public async Task<JogoDto> ObterJogoAsync(Guid jogoId)
+        public async Task<JogoResponseDto> ObterJogoAsync(Guid jogoId)
         {
-            throw new NotImplementedException();
+            var jogo = await _jogoRepository.ObterPorIdAsync(jogoId)
+                ?? throw new KeyNotFoundException("Jogo não encontrado com o Id informado");
+
+            return jogo.ToDto();
         }
 
-        public async Task<IEnumerable<JogoDto>> ObterJogosAsync()
+        public async Task<IEnumerable<JogoResponseDto>> ObterJogosAsync()
         {
-            throw new NotImplementedException();
+            var jogos = await _jogoRepository.ObterTodosAsync();
+
+            return jogos.Select(u => u.ToDto());
         }
 
-        public async Task AdicionarJogo(JogoDto jogoDto)
+        public async Task AdicionarJogo(JogoAdicionarDto jogoDto)
         {
-            throw new NotImplementedException();
+            await _jogoRepository.Adicionar(jogoDto.ToDomain());
         }
 
-        public async Task AlterarJogo(JogoDto jogoDto)
+        public async Task AlterarJogo(JogoAlterarDto jogoDto)
         {
-            throw new NotImplementedException();
+            var jogo = jogoDto.ToDomain();
+
+            await _jogoRepository.Alterar(jogo);
         }
 
         public async Task AtivarJogo(Guid jogoId)
         {
-            throw new NotImplementedException();
+            await _jogoRepository.Ativar(jogoId);
         }
 
         public async Task DesativarJogo(Guid jogoId)
         {
-            throw new NotImplementedException();
+            await _jogoRepository.Desativar(jogoId);
         }
     }
 }

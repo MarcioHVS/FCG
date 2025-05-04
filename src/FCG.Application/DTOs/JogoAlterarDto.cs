@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FCG.Application.Entities
 {
-    public class JogoDto
+    public class JogoAlterarDto
     {
         public Guid Id { get; set; }
 
@@ -18,7 +18,5 @@ namespace FCG.Application.Entities
 
         [Required(ErrorMessage = "O campo {0} é obrigatório.")]
         public decimal Valor { get; set; }
-
-        public DateTime DataCadastro { get; set; }
     }
 }
