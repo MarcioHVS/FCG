@@ -18,9 +18,9 @@ namespace FCG.Infrastructure.Mappings
                 .WithMany(u => u.Pedidos)
                 .HasPrincipalKey(u => u.Id);
 
-            builder.HasOne(p => p.Jogo)
-                .WithMany(j => j.Pedidos)
-                .HasPrincipalKey(j => j.Id);
+            builder.HasOne(p => p.Usuario)
+                .WithMany(u => u.Pedidos)
+                .HasForeignKey(p => p.UsuarioId);
 
             builder.ToTable("Pedidos");
         }

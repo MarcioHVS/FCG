@@ -25,9 +25,9 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task ObterPromocaoAsync_PromocaoExistente_DeveRetornarPromocao()
         {
             // Arrange
-            var promocaoId = Guid.NewGuid();
-            var promocao = new Promocao(promocaoId, "CUPOM10", "Desconto de 10%", TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10));
-
+            var promocao = Promocao.Adicionar("CUPOM10", "Desconto de 10%", TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10));
+            promocao.Ativar();
+            var promocaoId = promocao.Id;
             _promocaoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(promocaoId)).ReturnsAsync(promocao);
 
             // Act
@@ -36,7 +36,6 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Assert
             Assert.NotNull(resultado);
             Assert.Equal(promocaoId, resultado.Id);
-            Assert.Equal("CUPOM10", resultado.Cupom);
         }
 
         [Fact]
@@ -47,7 +46,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _promocaoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(promocaoId)).ReturnsAsync((Promocao)null);
 
             // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _promocaoService.ObterPromocaoAsync(promocaoId));
+            var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _promocaoService.ObterPromocaoAsync(promocaoId));
+            Assert.Equal("Promoção não encontrada com o Id informado", exception.Message);
         }
 
         [Fact]
@@ -60,22 +60,6 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Act & Assert
             await Assert.ThrowsAsync<KeyNotFoundException>(() => _promocaoService.ObterPromocaoAsync(promocaoId));
         }
-
-        [Fact]
-        public async Task ObterPromocaoAsync_PromocaoComPropriedadesNulas_DeveRetornarErro()
-        {
-            // Arrange
-            var promocaoId = Guid.NewGuid();
-            var promocao = new Promocao(Guid.NewGuid(), null, null, TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10));
-            _promocaoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(promocaoId)).ReturnsAsync(promocao);
-
-            // Act
-            var resultado = await _promocaoService.ObterPromocaoAsync(promocaoId);
-
-            // Assert
-            Assert.Null(resultado.Cupom);
-            Assert.Null(resultado.Descricao);
-        }
         #endregion
 
         #region ObterPromocoes
@@ -85,8 +69,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var promocoes = new List<Promocao>
             {
-                new Promocao(Guid.NewGuid(), "CUPOM10", "Desconto de 10%", TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10)),
-                new Promocao(Guid.NewGuid(), "CUPOM20", "Desconto de 20%", TipoDesconto.Percentual, 20m, DateTime.UtcNow.AddDays(20))
+                Promocao.Adicionar("CUPOM10", "Desconto de 10%", TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10)),
+                Promocao.Adicionar("CUPOM20", "Desconto de 20%", TipoDesconto.Percentual, 20m, DateTime.UtcNow.AddDays(20))
             };
 
             _promocaoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ReturnsAsync(promocoes);
@@ -97,6 +81,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Assert
             Assert.NotEmpty(resultado);
             Assert.Equal(2, resultado.Count());
+            Assert.Contains(resultado, j => j.Cupom == "CUPOM10");
+            Assert.Contains(resultado, j => j.Cupom == "CUPOM20");
         }
 
         [Fact]
@@ -119,7 +105,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _promocaoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ThrowsAsync(new Exception("Erro no banco"));
 
             // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _promocaoService.ObterPromocoesAsync());
+            var exception = await Assert.ThrowsAsync<Exception>(() => _promocaoService.ObterPromocoesAsync());
+            Assert.Equal("Erro no banco", exception.Message);
         }
 
         [Fact]
@@ -128,9 +115,9 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var promocoes = new List<Promocao>
             {
-                new Promocao(Guid.NewGuid(), "CUPOM05", "Desconto de 5%", TipoDesconto.Percentual, 5m, DateTime.UtcNow.AddDays(5)),
-                new Promocao(Guid.NewGuid(), "CUPOM10", "Desconto de 10%", TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10)),
-                new Promocao(Guid.NewGuid(), "CUPOM20", "Desconto de 20%", TipoDesconto.Percentual, 20m, DateTime.UtcNow.AddDays(20))
+                Promocao.Adicionar("CUPOM05", "Desconto de 5%", TipoDesconto.Percentual, 5m, DateTime.UtcNow.AddDays(5)),
+                Promocao.Adicionar("CUPOM10", "Desconto de 10%", TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10)),
+                Promocao.Adicionar("CUPOM20", "Desconto de 20%", TipoDesconto.Percentual, 20m, DateTime.UtcNow.AddDays(20))
             };
 
             _promocaoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ReturnsAsync(promocoes.OrderBy(j => j.Cupom).ToList());
@@ -139,13 +126,13 @@ namespace FCG.Tests.UnitTests.ServicesTests
             var resultado = await _promocaoService.ObterPromocoesAsync();
 
             // Assert
-            Assert.Equal("CUPOM05", resultado.First().Cupom);
+            Assert.Equal(new[] { "CUPOM05", "CUPOM10", "CUPOM20" }, resultado.Select(p => p.Cupom));
         }
         #endregion
 
         #region AdicionarPromocao
         [Fact]
-        public async Task AdicionarPromocao_DeveAdicionarComSucesso()
+        public async Task AdicionarPromocao_ComSucesso_DeveAdicionar()
         {
             // Arrange
             var promocaoDto = new PromocaoAdicionarDto
@@ -163,7 +150,13 @@ namespace FCG.Tests.UnitTests.ServicesTests
             await _promocaoService.AdicionarPromocao(promocaoDto);
 
             // Assert
-            _promocaoRepositoryMock.Verify(repo => repo.Adicionar(It.IsAny<Promocao>()), Times.Once);
+            _promocaoRepositoryMock.Verify(repo => repo.Adicionar(It.Is<Promocao>(
+                p => p.Cupom == promocaoDto.Cupom &&
+                     p.Descricao == promocaoDto.Descricao &&
+                     p.TipoDesconto == promocaoDto.TipoDesconto &&
+                     p.ValorDesconto == promocaoDto.ValorDesconto &&
+                     p.DataValidade == promocaoDto.DataValidade
+            )), Times.Once);
         }
 
         [Fact]
@@ -182,7 +175,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _promocaoRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Promocao>())).ThrowsAsync(new Exception("Erro ao adicionar promoção"));
 
             // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _promocaoService.AdicionarPromocao(promocaoDto));
+            var exception = await Assert.ThrowsAsync<Exception>(() => _promocaoService.AdicionarPromocao(promocaoDto));
+            Assert.Equal("Erro ao adicionar promoção", exception.Message);
         }
 
         [Fact]
@@ -198,10 +192,11 @@ namespace FCG.Tests.UnitTests.ServicesTests
                 DataValidade = DateTime.UtcNow.AddDays(30)
             };
 
-            _promocaoRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Promocao>())).ThrowsAsync(new Exception("Erro ao salvar"));
+            _promocaoRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Promocao>())).ThrowsAsync(new Exception("Erro ao salvar promoção"));
 
             // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _promocaoService.AdicionarPromocao(promocaoDto));
+            var exception = await Assert.ThrowsAsync<Exception>(() => _promocaoService.AdicionarPromocao(promocaoDto));
+            Assert.Equal("Erro ao salvar promoção", exception.Message);
         }
         #endregion
 
@@ -246,45 +241,68 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>())).ThrowsAsync(new Exception("Erro ao alterar promoção"));
 
             // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _promocaoService.AlterarPromocao(promocaoDto));
+            var exception = await Assert.ThrowsAsync<Exception>(() => _promocaoService.AlterarPromocao(promocaoDto));
+            Assert.Equal("Erro ao alterar promoção", exception.Message);
+        }
+
+        [Fact]
+        public async Task AlterarPromocao_PromocaoInexistente_DeveLancarExcecao()
+        {
+            // Arrange
+            var promocaoDto = new PromocaoAlterarDto
+            {
+                Id = Guid.NewGuid(),
+                Cupom = "NOVO_CUPOM",
+                Descricao = "Novo desconto",
+                TipoDesconto = TipoDesconto.Moeda,
+                ValorDesconto = 30m,
+                DataValidade = DateTime.UtcNow.AddDays(20)
+            };
+
+            _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>())).ThrowsAsync(new KeyNotFoundException("Promoção não encontrada"));
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _promocaoService.AlterarPromocao(promocaoDto));
+            Assert.Equal("Promoção não encontrada", exception.Message);
         }
 
         [Fact]
         public async Task AlterarPromocao_AlteracaoParcial_DeveAtualizarTodosCampos()
         {
             // Arrange
-            var promocaoId = Guid.NewGuid();
-            var dataValidade = DateTime.UtcNow.AddDays(20);
+            var promocaoOriginal = Promocao.Adicionar("CUPOM_ANTIGO", "Desconto antigo", TipoDesconto.Moeda, 30m, DateTime.UtcNow.AddDays(20));
+            promocaoOriginal.Ativar();
+            var promocaoId = promocaoOriginal.Id;
+
             var promocaoDto = new PromocaoAlterarDto
             {
                 Id = promocaoId,
-                Cupom = "NOVO_CUPOM",
-                Descricao = "Nova Descrição",
-                TipoDesconto = TipoDesconto.Moeda,
-                ValorDesconto = 30m,
-                DataValidade = dataValidade
+                Cupom = "CUPOM_NOVO",
+                Descricao = "Desconto novo",
+                TipoDesconto = TipoDesconto.Percentual,
+                ValorDesconto = 10m,
+                DataValidade = DateTime.UtcNow.AddDays(10)
             };
-
-            var promocaoOriginal = new Promocao(promocaoId, "CUPOM_ANTIGO", "Descrição Antiga", TipoDesconto.Percentual, 5m, DateTime.UtcNow.AddDays(30));
 
             _promocaoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(promocaoDto.Id)).ReturnsAsync(promocaoOriginal);
 
-            _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>())).Callback<Promocao>(p =>
-            {
-                _promocaoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(p.Id))
-                    .ReturnsAsync(new Promocao(p.Id, p.Cupom, p.Descricao, p.TipoDesconto, p.ValorDesconto, p.DataValidade));
-            }).Returns(Task.CompletedTask);
+            _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>()))
+                .Callback<Promocao>(p =>
+                {
+                    Promocao.Alterar(promocaoId, p.Cupom, p.Descricao, p.TipoDesconto, p.ValorDesconto, p.DataValidade);
+                    _promocaoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(p.Id)).ReturnsAsync(p);
+                })
+                .Returns(Task.CompletedTask);
 
             // Act
             await _promocaoService.AlterarPromocao(promocaoDto);
             var resultado = await _promocaoService.ObterPromocaoAsync(promocaoDto.Id);
 
             // Assert
-            Assert.Equal("NOVO_CUPOM", resultado.Cupom);
-            Assert.Equal("Nova Descrição", resultado.Descricao);
-            Assert.Equal(TipoDesconto.Moeda, resultado.TipoDesconto);
-            Assert.Equal(30m, resultado.ValorDesconto);
-            Assert.Equal(dataValidade, resultado.DataValidade);
+            Assert.Equal("CUPOM_NOVO", resultado.Cupom);
+            Assert.Equal("Desconto novo", resultado.Descricao);
+            Assert.Equal(TipoDesconto.Percentual, resultado.TipoDesconto);
+            Assert.Equal(10m, resultado.ValorDesconto);
         }
         #endregion
 

@@ -7,14 +7,14 @@ namespace FCG.Application.Mappers
     {
         public static Promocao ToDomain(this PromocaoAdicionarDto promocaoDto)
         {
-            return new Promocao(Guid.NewGuid(), promocaoDto.Cupom, promocaoDto.Descricao, promocaoDto.TipoDesconto,
-                                promocaoDto.ValorDesconto, promocaoDto.DataValidade);
+            return Promocao.Adicionar(promocaoDto.Cupom, promocaoDto.Descricao, promocaoDto.TipoDesconto,
+                                  promocaoDto.ValorDesconto, promocaoDto.DataValidade);
         }
 
         public static Promocao ToDomain(this PromocaoAlterarDto promocaoDto)
         {
-            return new Promocao(promocaoDto.Id, promocaoDto.Cupom, promocaoDto.Descricao, promocaoDto.TipoDesconto,
-                                promocaoDto.ValorDesconto, promocaoDto.DataValidade);
+            return Promocao.Alterar(promocaoDto.Id, promocaoDto.Cupom, promocaoDto.Descricao, promocaoDto.TipoDesconto,
+                                    promocaoDto.ValorDesconto, promocaoDto.DataValidade);
         }
 
         public static PromocaoResponseDto ToDto(this Promocao promocao)

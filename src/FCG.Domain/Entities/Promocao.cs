@@ -13,7 +13,7 @@ namespace FCG.Domain.Entities
         //EF
         protected Promocao() { }
 
-        public Promocao(Guid id, string cupom, string descricao, TipoDesconto tipoDesconto,
+        private Promocao(Guid id, string cupom, string descricao, TipoDesconto tipoDesconto,
                         decimal valorDesconto, DateTime dataValidade)
         {
             Id = id;
@@ -22,6 +22,18 @@ namespace FCG.Domain.Entities
             TipoDesconto = tipoDesconto;
             ValorDesconto = valorDesconto;
             DataValidade = dataValidade;
+        }
+
+        public static Promocao Adicionar(string cupom, string descricao, TipoDesconto tipoDesconto,
+                                     decimal valorDesconto, DateTime dataValidade)
+        {
+            return new Promocao(Guid.NewGuid(), cupom, descricao, tipoDesconto, valorDesconto, dataValidade);
+        }
+
+        public static Promocao Alterar(Guid id, string cupom, string descricao, TipoDesconto tipoDesconto,
+                                       decimal valorDesconto, DateTime dataValidade)
+        {
+            return new Promocao(id, cupom, descricao, tipoDesconto, valorDesconto, dataValidade);
         }
     }
 }

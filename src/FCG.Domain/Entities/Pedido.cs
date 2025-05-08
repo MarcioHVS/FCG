@@ -15,11 +15,21 @@ namespace FCG.Domain.Entities
         //EF
         protected Pedido() { }
 
-        public Pedido(Guid id, Guid usuarioId, Guid jogoId)
+        private Pedido(Guid id, Guid usuarioId, Guid jogoId)
         {
             Id = id;
             UsuarioId = usuarioId;
             JogoId = jogoId;
+        }
+
+        public static Pedido Adicionar(Guid usuarioId, Guid jogoId)
+        {
+            return new Pedido(Guid.NewGuid(), usuarioId, jogoId);
+        }
+
+        public static Pedido Alterar(Guid id, Guid usuarioId, Guid jogoId)
+        {
+            return new Pedido(id, usuarioId, jogoId);
         }
 
         public void CalcularValor(decimal valor, TipoDesconto tipoDesconto, decimal desconto)

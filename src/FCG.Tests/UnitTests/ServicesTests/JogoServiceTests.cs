@@ -24,8 +24,9 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task ObterJogoAsync_JogoExistente_DeveRetornarJogo()
         {
             // Arrange
-            var jogoId = Guid.NewGuid();
-            var jogo = new Jogo(jogoId, "Título Teste", "Descrição Teste", Genero.Aventura, 99.99m);
+            var jogo = Jogo.Adicionar("Título Teste", "Descrição Teste", Genero.Aventura, 99.99m);
+            jogo.Ativar();
+            var jogoId = jogo.Id;
             _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(jogoId)).ReturnsAsync(jogo);
 
             // Act
@@ -37,17 +38,6 @@ namespace FCG.Tests.UnitTests.ServicesTests
         }
 
         [Fact]
-        public async Task ObterJogoAsync_JogoInexistente_DeveRetornarNull()
-        {
-            // Arrange
-            var jogoId = Guid.NewGuid();
-            _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(jogoId)).ReturnsAsync((Jogo)null);
-
-            // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _jogoService.ObterJogoAsync(jogoId));
-        }
-
-        [Fact]
         public async Task ObterJogoAsync_JogoInexistente_DeveLancarExcecao()
         {
             // Arrange
@@ -55,23 +45,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(jogoId)).ReturnsAsync((Jogo)null);
 
             // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _jogoService.ObterJogoAsync(jogoId));
-        }
-
-        [Fact]
-        public async Task ObterJogoAsync_JogoComPropriedadesNulas_DeveRetornarErro()
-        {
-            // Arrange
-            var jogoId = Guid.NewGuid();
-            var jogo = new Jogo(jogoId, null, null, default, 0);
-            _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(jogoId)).ReturnsAsync(jogo);
-
-            // Act
-            var resultado = await _jogoService.ObterJogoAsync(jogoId);
-
-            // Assert
-            Assert.Null(resultado.Titulo);
-            Assert.Null(resultado.Descricao);
+            var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _jogoService.ObterJogoAsync(jogoId));
+            Assert.Equal("Jogo não encontrado com o Id informado", exception.Message);
         }
         #endregion
 
@@ -82,9 +57,10 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var jogos = new List<Jogo>
             {
-                new Jogo(Guid.NewGuid(), "Jogo 1", "Descrição 1", Genero.Aventura, 59.99m),
-                new Jogo(Guid.NewGuid(), "Jogo 2", "Descrição 2", Genero.Acao, 79.99m)
+                Jogo.Adicionar("Jogo 1", "Descrição 1", Genero.Aventura, 59.99m),
+                Jogo.Adicionar("Jogo 2", "Descrição 2", Genero.Acao, 79.99m)
             };
+
             _jogoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ReturnsAsync(jogos);
 
             // Act
@@ -93,6 +69,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Assert
             Assert.NotEmpty(resultado);
             Assert.Equal(2, resultado.Count());
+            Assert.Contains(resultado, j => j.Titulo == "Jogo 1");
+            Assert.Contains(resultado, j => j.Titulo == "Jogo 2");
         }
 
         [Fact]
@@ -115,7 +93,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _jogoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ThrowsAsync(new Exception("Erro no banco"));
 
             // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _jogoService.ObterJogosAsync());
+            var exception = await Assert.ThrowsAsync<Exception>(() => _jogoService.ObterJogosAsync());
+            Assert.Equal("Erro no banco", exception.Message);
         }
 
         [Fact]
@@ -124,9 +103,9 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var jogos = new List<Jogo>
             {
-                new Jogo(Guid.NewGuid(), "Zelda", "Aventura", Genero.Aventura, 99.99m),
-                new Jogo(Guid.NewGuid(), "Mario", "Plataforma", Genero.Plataforma, 79.99m),
-                new Jogo(Guid.NewGuid(), "Sonic", "Corrida", Genero.Acao, 59.99m)
+                Jogo.Adicionar("Zelda", "Aventura", Genero.Aventura, 99.99m),
+                Jogo.Adicionar("Mario", "Plataforma", Genero.Plataforma, 79.99m),
+                Jogo.Adicionar("Sonic", "Corrida", Genero.Acao, 59.99m)
             };
 
             _jogoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ReturnsAsync(jogos.OrderBy(j => j.Titulo).ToList());
@@ -135,7 +114,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
             var resultado = await _jogoService.ObterJogosAsync();
 
             // Assert
-            Assert.Equal("Mario", resultado.First().Titulo);
+            Assert.Equal(new[] { "Mario", "Sonic", "Zelda" }, resultado.Select(j => j.Titulo));
         }
         #endregion
 
@@ -144,7 +123,13 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task AdicionarJogo_ComSucesso_DeveAdicionar()
         {
             // Arrange
-            var jogoDto = new JogoAdicionarDto { Titulo = "Novo Jogo", Descricao = "Teste", Genero = Genero.Aventura, Valor = 49.99m };
+            var jogoDto = new JogoAdicionarDto
+            {
+                Titulo = "Novo Jogo", 
+                Descricao = "Teste", 
+                Genero = Genero.Aventura, 
+                Valor = 49.99m
+            };
 
             _jogoRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Jogo>())).Returns(Task.CompletedTask);
 
@@ -152,39 +137,66 @@ namespace FCG.Tests.UnitTests.ServicesTests
             await _jogoService.AdicionarJogo(jogoDto);
 
             // Assert
-            _jogoRepositoryMock.Verify(repo => repo.Adicionar(It.IsAny<Jogo>()), Times.Once);
+            _jogoRepositoryMock.Verify(repo => repo.Adicionar(It.Is<Jogo>(
+                j => j.Titulo == jogoDto.Titulo &&
+                     j.Descricao == jogoDto.Descricao &&
+                     j.Genero == jogoDto.Genero &&
+                     j.Valor == jogoDto.Valor
+            )), Times.Once);
         }
 
         [Fact]
         public async Task AdicionarJogo_ComErro_DeveLancarExcecao()
         {
             // Arrange
-            var jogoDto = new JogoAdicionarDto { Titulo = "Novo Jogo", Descricao = "Teste", Genero = Genero.Aventura, Valor = 49.99m };
+            var jogoDto = new JogoAdicionarDto
+            {
+                Titulo = "Novo Jogo",
+                Descricao = "Teste",
+                Genero = Genero.Aventura,
+                Valor = 49.99m
+            };
 
             _jogoRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Jogo>())).ThrowsAsync(new Exception("Erro ao adicionar jogo"));
 
             // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _jogoService.AdicionarJogo(jogoDto));
+            var exception = await Assert.ThrowsAsync<Exception>(() => _jogoService.AdicionarJogo(jogoDto));
+            Assert.Equal("Erro ao adicionar jogo", exception.Message);
         }
 
         [Fact]
         public async Task AdicionarJogo_FalhaBanco_DeveLancarExcecao()
         {
             // Arrange
-            var jogoDto = new JogoAdicionarDto { Titulo = "Jogo Teste", Descricao = "Descrição", Genero = Genero.Acao, Valor = 49.99m };
-            _jogoRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Jogo>())).ThrowsAsync(new Exception("Erro ao salvar"));
+            var jogoDto = new JogoAdicionarDto
+            {
+                Titulo = "Jogo Teste",
+                Descricao = "Descrição",
+                Genero = Genero.Acao,
+                Valor = 49.99m
+            };
+
+            _jogoRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Jogo>())).ThrowsAsync(new Exception("Erro ao salvar jogo"));
 
             // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _jogoService.AdicionarJogo(jogoDto));
+            var exception = await Assert.ThrowsAsync<Exception>(() => _jogoService.AdicionarJogo(jogoDto));
+            Assert.Equal("Erro ao salvar jogo", exception.Message);
         }
         #endregion
 
         #region AlterarJogo
         [Fact]
-        public async Task AlterarJogo_DeveAlterarComSucesso()
+        public async Task AlterarJogo_ComSucesso_DeveAlterar()
         {
             // Arrange
-            var jogoDto = new JogoAlterarDto { Id = Guid.NewGuid(), Titulo = "Jogo Atualizado", Descricao = "Nova descrição", Genero = Genero.Acao, Valor = 59.99m };
+            var jogoDto = new JogoAlterarDto
+            {
+                Id = Guid.NewGuid(),
+                Titulo = "Jogo Atualizado",
+                Descricao = "Nova descrição",
+                Genero = Genero.Acao,
+                Valor = 59.99m
+            };
 
             _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>())).Returns(Task.CompletedTask);
 
@@ -199,12 +211,20 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task AlterarJogo_ComErro_DeveLancarExcecao()
         {
             // Arrange
-            var jogoDto = new JogoAlterarDto { Id = Guid.NewGuid(), Titulo = "Jogo Atualizado", Descricao = "Nova descrição", Genero = Genero.Acao, Valor = 59.99m };
+            var jogoDto = new JogoAlterarDto
+            {
+                Id = Guid.NewGuid(),
+                Titulo = "Jogo Atualizado",
+                Descricao = "Nova descrição",
+                Genero = Genero.Acao,
+                Valor = 59.99m
+            };
 
             _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>())).ThrowsAsync(new Exception("Erro ao alterar jogo"));
 
             // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() => _jogoService.AlterarJogo(jogoDto));
+            var exception = await Assert.ThrowsAsync<Exception>(() => _jogoService.AlterarJogo(jogoDto));
+            Assert.Equal("Erro ao alterar jogo", exception.Message);
         }
 
         [Fact]
@@ -215,14 +235,18 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>())).ThrowsAsync(new KeyNotFoundException("Jogo não encontrado"));
 
             // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _jogoService.AlterarJogo(jogoDto));
+            var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _jogoService.AlterarJogo(jogoDto));
+            Assert.Equal("Jogo não encontrado", exception.Message);
         }
 
         [Fact]
         public async Task AlterarJogo_AlteracaoParcial_DeveAtualizarTodosCampos()
         {
             // Arrange
-            var jogoId = Guid.NewGuid();
+            var jogoOriginal = Jogo.Adicionar("Título Antigo", "Descrição Antiga", Genero.Acao, 49.99m);
+            jogoOriginal.Ativar();
+            var jogoId = jogoOriginal.Id;
+
             var jogoDto = new JogoAlterarDto
             {
                 Id = jogoId,
@@ -232,15 +256,15 @@ namespace FCG.Tests.UnitTests.ServicesTests
                 Valor = 59.99m
             };
 
-            var jogoOriginal = new Jogo(jogoId, "Título Antigo", "Descrição Antiga", Genero.Acao, 49.99m);
-
             _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(jogoDto.Id)).ReturnsAsync(jogoOriginal);
 
-            _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>())).Callback<Jogo>(j =>
-            {
-                _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(j.Id))
-                    .ReturnsAsync(new Jogo(j.Id, j.Titulo, j.Descricao, j.Genero, j.Valor));
-            }).Returns(Task.CompletedTask);
+            _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>()))
+                .Callback<Jogo>(j =>
+                {
+                    Jogo.Alterar(jogoId, j.Titulo, j.Descricao, j.Genero, j.Valor);
+                    _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(j.Id)).ReturnsAsync(j);
+                })
+                .Returns(Task.CompletedTask);
 
             // Act
             await _jogoService.AlterarJogo(jogoDto);

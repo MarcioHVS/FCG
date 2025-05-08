@@ -21,13 +21,12 @@ namespace FCG.Infrastructure.Context
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         }
 
-        public async Task Salvar()
+        public async Task<bool> Salvar(CancellationToken cancellationToken = default)
         {
-            foreach (var entry in ChangeTracker.Entries()
-                .Where(entry => entry.Entity.GetType().GetProperty("DataCadastro") != null))
+            foreach (var entry in ChangeTracker.Entries<EntityBase>())
             {
                 if (entry.State == EntityState.Added)
-                    entry.Property("DataCadastro").CurrentValue = DateTime.Now;
+                    entry.Property("DataCadastro").CurrentValue = DateTime.UtcNow;
 
                 if (entry.State == EntityState.Modified)
                     entry.Property("DataCadastro").IsModified = false;
@@ -35,15 +34,21 @@ namespace FCG.Infrastructure.Context
 
             foreach (var entry in ChangeTracker.Entries<Usuario>())
             {
-                var senhaProperty = entry.Property("Senha");
+                var senhaProperty = entry.Property(nameof(Usuario.Senha));
                 if (entry.State == EntityState.Modified && senhaProperty.CurrentValue is string senha && string.IsNullOrEmpty(senha))
                     senhaProperty.IsModified = false;
+
+                var saltProperty = entry.Property(nameof(Usuario.Salt));
+                if (entry.State == EntityState.Modified && saltProperty.CurrentValue is string salt && string.IsNullOrEmpty(salt))
+                    saltProperty.IsModified = false;
             }
 
-            var salvo = await base.SaveChangesAsync() > 0;
+            var salvo = await base.SaveChangesAsync(cancellationToken) > 0;
 
             if (!salvo)
                 throw new DbUpdateException("Houve um erro ao tentar persistir os dados");
+
+            return salvo;
         }
     }
 }

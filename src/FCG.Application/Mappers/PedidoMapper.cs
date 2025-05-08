@@ -7,12 +7,12 @@ namespace FCG.Application.Mappers
     {
         public static Pedido ToDomain(this PedidoAdicionarDto pedidoDto)
         {
-            return new Pedido(Guid.NewGuid(), pedidoDto.UsuarioId, pedidoDto.JogoId);
+            return Pedido.Adicionar(pedidoDto.UsuarioId, pedidoDto.JogoId);
         }
 
         public static Pedido ToDomain(this PedidoAlterarDto pedidoDto)
         {
-            return new Pedido(pedidoDto.Id, pedidoDto.UsuarioId, pedidoDto.JogoId);
+            return Pedido.Alterar(pedidoDto.Id, pedidoDto.UsuarioId, pedidoDto.JogoId);
         }
 
         public static PedidoResponseDto ToDto(this Pedido pedido)

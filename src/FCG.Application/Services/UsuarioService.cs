@@ -20,11 +20,11 @@ namespace FCG.Application.Services
             var usuario = await _usuarioRepository.ObterUsuarioPorApelidoAsync(login.Apelido)
                 ?? throw new CredenciaisInvalidasException();
 
+            if (!usuario.Ativo)
+                throw new OperacaoInvalidaException("Login não permitido: sua conta não está ativa no sistema");
+
             if (!usuario.ValidarSenha(login.Senha))
                 throw new CredenciaisInvalidasException();
-
-            if(!usuario.Ativo)
-                throw new OperacaoInvalidaException("Login não permitido: sua conta não está ativa no sistema");
 
             return usuario.ToDto();
         }

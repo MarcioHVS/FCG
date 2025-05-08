@@ -33,6 +33,10 @@ namespace FCG.Infrastructure.Mappings
                 .IsRequired()
                 .HasColumnType("nvarchar(max)");
 
+            builder.Property(u => u.Salt)
+                .IsRequired()
+                .HasColumnType("varchar(50)");
+
             builder.Property(u => u.Role)
                 .IsRequired()
                 .HasColumnType("int");

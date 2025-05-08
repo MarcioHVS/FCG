@@ -10,8 +10,11 @@ namespace MGO.Cliente.Api.Configurations
     {
         public static WebApplicationBuilder RegisterDependencies(this WebApplicationBuilder builder)
         {
-            var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
-                ?? throw new InvalidOperationException("Configuração JWT não encontrada no appsettings.json.");
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
+            if (jwtSettings is null || string.IsNullOrEmpty(jwtSettings.SecretKey))
+                throw new InvalidOperationException("Configuração JWT inválida.");
+
             builder.Services.AddSingleton(jwtSettings);
 
             builder.Services.AddScoped<IJwtService, JwtService>();
@@ -25,6 +28,7 @@ namespace MGO.Cliente.Api.Configurations
             builder.Services.AddScoped<IJogoService, JogoService>();
             builder.Services.AddScoped<IPedidoService, PedidoService>();
             builder.Services.AddScoped<IPromocaoService, PromocaoService>();
+            builder.Services.AddScoped<ValidationService>();
 
             builder.Services.AddScoped<ApplicationDbContext>();
 

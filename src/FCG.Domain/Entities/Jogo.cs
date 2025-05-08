@@ -14,13 +14,23 @@ namespace FCG.Domain.Entities
         //EF
         protected Jogo() { }
 
-        public Jogo(Guid id, string titulo, string descricao, Genero genero, decimal valor)
+        private Jogo(Guid id, string titulo, string descricao, Genero genero, decimal valor)
         {
             Id = id;
             Titulo = titulo;
             Descricao = descricao;
             Genero = genero;
             Valor = valor;
+        }
+
+        public static Jogo Adicionar(string titulo, string descricao, Genero genero, decimal valor)
+        {
+            return new Jogo(Guid.NewGuid(), titulo, descricao, genero, valor);
+        }
+
+        public static Jogo Alterar(Guid id, string titulo, string descricao, Genero genero, decimal valor)
+        {
+            return new Jogo(id, titulo, descricao, genero, valor);
         }
     }
 }

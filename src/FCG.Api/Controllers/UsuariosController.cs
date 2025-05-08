@@ -117,7 +117,9 @@ namespace FCG.Api.Controllers
 
         private bool ValidarPermissao(Guid usuarioId)
         {
-            if (User.IsInRole("Usuario") && !usuarioId.Equals(User.FindFirst(ClaimTypes.NameIdentifier)?.Value))
+            var usuarioLogadoId = Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var id) ? id : Guid.Empty;
+
+            if (User.IsInRole("Usuario") && usuarioId != usuarioLogadoId)
             {
                 AdicionarErroProcessamento("Esta ação está limitada ao seu próprio cadastro. Você não tem permissão aos dados de outro usuário");
                 return false;

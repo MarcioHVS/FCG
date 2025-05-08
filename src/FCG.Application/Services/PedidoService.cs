@@ -11,19 +11,14 @@ namespace FCG.Application.Services
     public class PedidoService : IPedidoService
     {
         private readonly IPedidoRepository _pedidoRepository;
-        private readonly IUsuarioRepository _usuarioRepository;
-        private readonly IJogoRepository _jogoRepository;
-        private readonly IPromocaoRepository _promocaoRepository;
+        private readonly ValidationService _validationService;
+
 
         public PedidoService(IPedidoRepository pedidoRepository,
-                             IUsuarioRepository usuarioRepository,
-                             IJogoRepository jogoRepository,
-                             IPromocaoRepository promocaoRepository)
+                             ValidationService validationService)
         {
             _pedidoRepository = pedidoRepository;
-            _usuarioRepository = usuarioRepository;
-            _jogoRepository = jogoRepository;
-            _promocaoRepository = promocaoRepository;
+            _validationService = validationService; 
         }
 
         public async Task<PedidoResponseDto> ObterPedidoAsync(Guid pedidoId, Guid usuarioId)
@@ -79,41 +74,13 @@ namespace FCG.Application.Services
 
         private async Task CalcularValorPedido(Pedido pedido, string cupom)
         {
-            var jogo = await ObterJogoValido(pedido.JogoId);
-            var usuario = await ObterUsuarioValido(pedido.UsuarioId);
-            var promocao = string.IsNullOrEmpty(cupom) ? null : await ObterPromocaoValida(cupom);
+            var jogo = await _validationService.ObterJogoValido(pedido.JogoId);
+            var usuario = await _validationService.ObterUsuarioValido(pedido.UsuarioId);
+            var promocao = string.IsNullOrEmpty(cupom) ? null : await _validationService.ObterPromocaoValida(cupom);
 
             pedido.CalcularValor(jogo.Valor, 
                                  promocao?.TipoDesconto ?? TipoDesconto.Moeda, 
                                  promocao?.ValorDesconto ?? 0);
-        }
-
-        private async Task<Jogo> ObterJogoValido(Guid jogoId)
-        {
-            var jogo = await _jogoRepository.ObterPorIdAsync(jogoId)
-                ?? throw new KeyNotFoundException("Jogo não encontrado com o Id informado");
-
-            if (!jogo.Ativo)
-                throw new OperacaoInvalidaException("Este jogo não está disponível no momento");
-
-            return jogo;
-        }
-
-        private async Task<Usuario> ObterUsuarioValido(Guid usuarioId)
-        {
-            var usuario = await _usuarioRepository.ObterPorIdAsync(usuarioId)
-                ?? throw new KeyNotFoundException("Usuario não encontrado com o Id informado");
-
-            if (!usuario.Ativo)
-                throw new OperacaoInvalidaException("Este usuario não está disponível no momento");
-
-            return usuario;
-        }
-
-        private async Task<Promocao?> ObterPromocaoValida(string cupom)
-        {
-            var promocao = await _promocaoRepository.ObterPromocaoPorCupomAsync(cupom);
-            return promocao?.Ativo == true ? promocao : null;
         }
     }
 }
