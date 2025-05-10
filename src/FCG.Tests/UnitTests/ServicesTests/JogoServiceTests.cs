@@ -24,17 +24,16 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task ObterJogoAsync_JogoExistente_DeveRetornarJogo()
         {
             // Arrange
-            var jogoId = Guid.NewGuid();
-            var jogo = Jogo.Criar(jogoId, "Título Teste", "Descrição Teste", Genero.Aventura, 99.99m);
+            var jogo = Jogo.Criar(null, "Super Mario Bros", "Uma jornada para salvar a Princesa Peach", Genero.Aventura, 79.99m);
             jogo.Ativar();
-            _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(jogoId)).ReturnsAsync(jogo);
+            _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(jogo.Id)).ReturnsAsync(jogo);
 
             // Act
-            var resultado = await _jogoService.ObterJogoAsync(jogoId);
+            var resultado = await _jogoService.ObterJogoAsync(jogo.Id);
 
             // Assert
             Assert.NotNull(resultado);
-            Assert.Equal(jogoId, resultado.Id);
+            Assert.Equal(jogo.Id, resultado.Id);
         }
 
         [Fact]
@@ -57,8 +56,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var jogos = new List<Jogo>
             {
-                Jogo.Criar(null, "Jogo 1", "Descrição 1", Genero.Aventura, 59.99m),
-                Jogo.Criar(null, "Jogo 2", "Descrição 2", Genero.Acao, 79.99m)
+                Jogo.Criar(null, "Super Mario Bros", "Uma jornada para salvar a Princesa Peach", Genero.Plataforma, 79.99m),
+                Jogo.Criar(null, "Street Fighter", "Lutadores batalham em duelos épicos", Genero.Luta, 159.99m)
             };
 
             _jogoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ReturnsAsync(jogos);
@@ -69,8 +68,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Assert
             Assert.NotEmpty(resultado);
             Assert.Equal(2, resultado.Count());
-            Assert.Contains(resultado, j => j.Titulo == "Jogo 1");
-            Assert.Contains(resultado, j => j.Titulo == "Jogo 2");
+            Assert.Contains(resultado, j => j.Titulo == "Super Mario Bros");
+            Assert.Contains(resultado, j => j.Titulo == "Street Fighter");
         }
 
         [Fact]
@@ -103,9 +102,9 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var jogos = new List<Jogo>
             {
-                Jogo.Criar(null, "Zelda", "Aventura", Genero.Aventura, 99.99m),
-                Jogo.Criar(null, "Mario", "Plataforma", Genero.Plataforma, 79.99m),
-                Jogo.Criar(null, "Sonic", "Corrida", Genero.Acao, 59.99m)
+                Jogo.Criar(null, "Zelda", "Resgatar a Princesa Zelda das garras do maligno Ganon", Genero.Aventura, 99.99m),
+                Jogo.Criar(null, "Metal Gear Solid", "Infiltrar-se em uma base secreta para impedir uma ameaça nuclear", Genero.Plataforma, 79.99m),
+                Jogo.Criar(null, "Street Fighter", "Lutadores batalham em duelos épicos", Genero.Acao, 159.99m)
             };
 
             _jogoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ReturnsAsync(jogos.OrderBy(j => j.Titulo).ToList());
@@ -114,7 +113,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
             var resultado = await _jogoService.ObterJogosAsync();
 
             // Assert
-            Assert.Equal(new[] { "Mario", "Sonic", "Zelda" }, resultado.Select(j => j.Titulo));
+            Assert.Equal(new[] { "Metal Gear Solid", "Street Fighter", "Zelda" }, resultado.Select(j => j.Titulo));
         }
         #endregion
 
@@ -125,10 +124,10 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var jogoDto = new JogoAdicionarDto
             {
-                Titulo = "Novo Jogo", 
-                Descricao = "Teste", 
-                Genero = Genero.Aventura, 
-                Valor = 49.99m
+                Titulo = "Super Mario Bros", 
+                Descricao = "Uma jornada para salvar a Princesa Peach", 
+                Genero = Genero.Plataforma, 
+                Valor = 79.99m
             };
 
             _jogoRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Jogo>())).Returns(Task.CompletedTask);
@@ -151,10 +150,10 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var jogoDto = new JogoAdicionarDto
             {
-                Titulo = "Novo Jogo",
-                Descricao = "Teste",
-                Genero = Genero.Aventura,
-                Valor = 49.99m
+                Titulo = "Super Mario Bros",
+                Descricao = "Uma jornada para salvar a Princesa Peach",
+                Genero = Genero.Plataforma,
+                Valor = 79.99m
             };
 
             _jogoRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Jogo>())).ThrowsAsync(new Exception("Erro ao adicionar jogo"));
@@ -170,10 +169,10 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var jogoDto = new JogoAdicionarDto
             {
-                Titulo = "Jogo Teste",
-                Descricao = "Descrição",
-                Genero = Genero.Acao,
-                Valor = 49.99m
+                Titulo = "Super Mario Bros",
+                Descricao = "Uma jornada para salvar a Princesa Peach",
+                Genero = Genero.Plataforma,
+                Valor = 79.99m
             };
 
             _jogoRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Jogo>())).ThrowsAsync(new Exception("Erro ao salvar jogo"));
@@ -192,10 +191,10 @@ namespace FCG.Tests.UnitTests.ServicesTests
             var jogoDto = new JogoAlterarDto
             {
                 Id = Guid.NewGuid(),
-                Titulo = "Jogo Atualizado",
-                Descricao = "Nova descrição",
-                Genero = Genero.Acao,
-                Valor = 59.99m
+                Titulo = "Super Mario Bros",
+                Descricao = "Uma jornada para salvar a Princesa Peach",
+                Genero = Genero.Plataforma,
+                Valor = 79.99m
             };
 
             _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>())).Returns(Task.CompletedTask);
@@ -214,10 +213,10 @@ namespace FCG.Tests.UnitTests.ServicesTests
             var jogoDto = new JogoAlterarDto
             {
                 Id = Guid.NewGuid(),
-                Titulo = "Jogo Atualizado",
-                Descricao = "Nova descrição",
-                Genero = Genero.Acao,
-                Valor = 59.99m
+                Titulo = "Super Mario Bros",
+                Descricao = "Uma jornada para salvar a Princesa Peach",
+                Genero = Genero.Plataforma,
+                Valor = 79.99m
             };
 
             _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>())).ThrowsAsync(new Exception("Erro ao alterar jogo"));
@@ -231,7 +230,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task AlterarJogo_JogoInexistente_DeveLancarExcecao()
         {
             // Arrange
-            var jogoDto = new JogoAlterarDto { Id = Guid.NewGuid(), Titulo = "Jogo Alterado", Descricao = "Nova descrição", Genero = Genero.Acao, Valor = 79.99m };
+            var jogoDto = new JogoAlterarDto { Id = Guid.NewGuid(), Titulo = "Super Mario Bros", Descricao = "Uma jornada para salvar a Princesa Peach", Genero = Genero.Plataforma, Valor = 79.99m };
             _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>())).ThrowsAsync(new KeyNotFoundException("Jogo não encontrado"));
 
             // Act & Assert
@@ -243,17 +242,16 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task AlterarJogo_AlteracaoParcial_DeveAtualizarTodosCampos()
         {
             // Arrange
-            var jogoId = Guid.NewGuid();
-            var jogoOriginal = Jogo.Criar(jogoId, "Título Antigo", "Descrição Antiga", Genero.Acao, 49.99m);
+            var jogoOriginal = Jogo.Criar(null, "Super Mario Bros I", "Uma jornada para salvar a Princesa Peach", Genero.Plataforma, 79.99m);
             jogoOriginal.Ativar();
 
             var jogoDto = new JogoAlterarDto
             {
-                Id = jogoId,
-                Titulo = "Novo Título",
-                Descricao = "Nova Descrição",
-                Genero = Genero.RPG,
-                Valor = 59.99m
+                Id = jogoOriginal.Id,
+                Titulo = "Super Mario Bros II",
+                Descricao = "Outra jornada para salvar a Princesa Peach",
+                Genero = Genero.Acao,
+                Valor = 88.59m
             };
 
             _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(jogoDto.Id)).ReturnsAsync(jogoOriginal);
@@ -261,7 +259,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>()))
                 .Callback<Jogo>(j =>
                 {
-                    Jogo.Criar(jogoId, j.Titulo, j.Descricao, j.Genero, j.Valor);
+                    Jogo.Criar(jogoOriginal.Id, j.Titulo, j.Descricao, j.Genero, j.Valor);
                     _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(j.Id)).ReturnsAsync(j);
                 })
                 .Returns(Task.CompletedTask);
@@ -271,10 +269,10 @@ namespace FCG.Tests.UnitTests.ServicesTests
             var resultado = await _jogoService.ObterJogoAsync(jogoDto.Id);
 
             // Assert
-            Assert.Equal("Novo Título", resultado.Titulo);
-            Assert.Equal("Nova Descrição", resultado.Descricao);
-            Assert.Equal(Genero.RPG, resultado.Genero);
-            Assert.Equal(59.99m, resultado.Valor);
+            Assert.Equal("Super Mario Bros II", resultado.Titulo);
+            Assert.Equal("Outra jornada para salvar a Princesa Peach", resultado.Descricao);
+            Assert.Equal(Genero.Acao, resultado.Genero);
+            Assert.Equal(88.59m, resultado.Valor);
         }
         #endregion
 

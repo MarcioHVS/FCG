@@ -19,7 +19,7 @@ namespace FCG.Infrastructure.Mappings
 
             builder.Property(j => j.Descricao)
                 .IsRequired()
-                .HasColumnType("varchar(max)");
+                .HasColumnType("varchar(1000)");
 
             builder.Property(j => j.Genero)
                 .IsRequired()

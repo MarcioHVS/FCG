@@ -27,7 +27,7 @@ namespace FCG.Infrastructure.Mappings
 
             builder.Property(u => u.Senha)
                 .IsRequired()
-                .HasColumnType("nvarchar(max)");
+                .HasColumnType("nvarchar(1000)");
 
             builder.Property(u => u.Salt)
                 .IsRequired()

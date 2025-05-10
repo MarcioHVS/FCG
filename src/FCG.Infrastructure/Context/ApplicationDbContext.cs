@@ -5,10 +5,10 @@ namespace FCG.Infrastructure.Context
 {
     public class ApplicationDbContext : DbContext
     {
-        public required DbSet<Usuario> Usuarios { get; set; }
-        public required DbSet<Jogo> Jogos { get; set; }
-        public required DbSet<Pedido> Pedidos { get; set; }
-        public required DbSet<Promocao> Promocoes { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Jogo> Jogos { get; set; }
+        public DbSet<Pedido> Pedidos { get; set; }
+        public DbSet<Promocao> Promocoes { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

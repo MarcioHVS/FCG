@@ -5,7 +5,6 @@ using FCG.Application.DTOs;
 using FCG.Domain.Entities;
 using FCG.Domain.Interfaces;
 using FCG.Domain.Enums;
-using FCG.Application.Interfaces;
 
 namespace FCG.Tests.UnitTests.ServicesTests
 {
@@ -271,13 +270,12 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task AlterarPromocao_AlteracaoParcial_DeveAtualizarTodosCampos()
         {
             // Arrange
-            var promocaoId = Guid.NewGuid();
-            var promocaoOriginal = Promocao.Criar(promocaoId, "CUPOM_ANTIGO", "Desconto antigo", TipoDesconto.Moeda, 30m, DateTime.UtcNow.AddDays(20));
+            var promocaoOriginal = Promocao.Criar(null, "CUPOM_ANTIGO", "Desconto antigo", TipoDesconto.Moeda, 30m, DateTime.UtcNow.AddDays(20));
             promocaoOriginal.Ativar();
 
             var promocaoDto = new PromocaoAlterarDto
             {
-                Id = promocaoId,
+                Id = promocaoOriginal.Id,
                 Cupom = "CUPOM_NOVO",
                 Descricao = "Desconto novo",
                 TipoDesconto = TipoDesconto.Percentual,
@@ -290,7 +288,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>()))
                 .Callback<Promocao>(p =>
                 {
-                    Promocao.Criar(promocaoId, p.Cupom, p.Descricao, p.TipoDesconto, p.ValorDesconto, p.DataValidade);
+                    Promocao.Criar(promocaoOriginal.Id, p.Cupom, p.Descricao, p.TipoDesconto, p.ValorDesconto, p.DataValidade);
                     _promocaoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(p.Id)).ReturnsAsync(p);
                 })
                 .Returns(Task.CompletedTask);
