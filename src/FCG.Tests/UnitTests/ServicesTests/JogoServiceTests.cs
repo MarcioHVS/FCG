@@ -24,9 +24,9 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task ObterJogoAsync_JogoExistente_DeveRetornarJogo()
         {
             // Arrange
-            var jogo = Jogo.Adicionar("Título Teste", "Descrição Teste", Genero.Aventura, 99.99m);
+            var jogoId = Guid.NewGuid();
+            var jogo = Jogo.Criar(jogoId, "Título Teste", "Descrição Teste", Genero.Aventura, 99.99m);
             jogo.Ativar();
-            var jogoId = jogo.Id;
             _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(jogoId)).ReturnsAsync(jogo);
 
             // Act
@@ -57,8 +57,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var jogos = new List<Jogo>
             {
-                Jogo.Adicionar("Jogo 1", "Descrição 1", Genero.Aventura, 59.99m),
-                Jogo.Adicionar("Jogo 2", "Descrição 2", Genero.Acao, 79.99m)
+                Jogo.Criar(null, "Jogo 1", "Descrição 1", Genero.Aventura, 59.99m),
+                Jogo.Criar(null, "Jogo 2", "Descrição 2", Genero.Acao, 79.99m)
             };
 
             _jogoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ReturnsAsync(jogos);
@@ -103,9 +103,9 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var jogos = new List<Jogo>
             {
-                Jogo.Adicionar("Zelda", "Aventura", Genero.Aventura, 99.99m),
-                Jogo.Adicionar("Mario", "Plataforma", Genero.Plataforma, 79.99m),
-                Jogo.Adicionar("Sonic", "Corrida", Genero.Acao, 59.99m)
+                Jogo.Criar(null, "Zelda", "Aventura", Genero.Aventura, 99.99m),
+                Jogo.Criar(null, "Mario", "Plataforma", Genero.Plataforma, 79.99m),
+                Jogo.Criar(null, "Sonic", "Corrida", Genero.Acao, 59.99m)
             };
 
             _jogoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ReturnsAsync(jogos.OrderBy(j => j.Titulo).ToList());
@@ -243,9 +243,9 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task AlterarJogo_AlteracaoParcial_DeveAtualizarTodosCampos()
         {
             // Arrange
-            var jogoOriginal = Jogo.Adicionar("Título Antigo", "Descrição Antiga", Genero.Acao, 49.99m);
+            var jogoId = Guid.NewGuid();
+            var jogoOriginal = Jogo.Criar(jogoId, "Título Antigo", "Descrição Antiga", Genero.Acao, 49.99m);
             jogoOriginal.Ativar();
-            var jogoId = jogoOriginal.Id;
 
             var jogoDto = new JogoAlterarDto
             {
@@ -261,7 +261,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>()))
                 .Callback<Jogo>(j =>
                 {
-                    Jogo.Alterar(jogoId, j.Titulo, j.Descricao, j.Genero, j.Valor);
+                    Jogo.Criar(jogoId, j.Titulo, j.Descricao, j.Genero, j.Valor);
                     _jogoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(j.Id)).ReturnsAsync(j);
                 })
                 .Returns(Task.CompletedTask);

@@ -1,5 +1,6 @@
 ﻿using FCG.Api.Configurations;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FCG.Api.Controllers
 {
@@ -36,6 +37,19 @@ namespace FCG.Api.Controllers
             HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
 
             return false;
+        }
+
+        protected bool ValidarPermissao(Guid usuarioId)
+        {
+            var usuarioLogadoId = Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var id) ? id : Guid.Empty;
+
+            if (User.IsInRole("Usuario") && usuarioId != usuarioLogadoId)
+            {
+                AdicionarErroProcessamento("Permissão negada: Você só pode acessar, criar ou alterar seus próprios dados.");
+                return false;
+            }
+
+            return true;
         }
     }
 }

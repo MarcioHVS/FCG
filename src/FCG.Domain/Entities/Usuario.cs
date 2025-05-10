@@ -1,6 +1,8 @@
 ﻿using FCG.Domain.Enums;
-using FCG.Domain.ValueObjects;
+using FCG.Domain.Exceptions;
 using Isopoh.Cryptography.Argon2;
+using System.Net.Mail;
+using System.Text.RegularExpressions;
 
 namespace FCG.Domain.Entities
 {
@@ -8,7 +10,7 @@ namespace FCG.Domain.Entities
     {
         public string Nome { get; private set; }
         public string Apelido { get; private set; }
-        public Email Email { get; private set; }
+        public string Email { get; private set; }
         public string Senha { get; private set; }
         public string Salt { get; private set; }
         public Role Role { get; private set; }
@@ -18,7 +20,7 @@ namespace FCG.Domain.Entities
         //EF
         protected Usuario() { }
 
-        private Usuario(Guid id, string nome, string apelido, Email email, string senhaHash, string salt, Role role)
+        private Usuario(Guid id, string nome, string apelido, string email, string senhaHash, string salt, Role role)
         {
             Id = id;
             Nome = nome;
@@ -29,20 +31,45 @@ namespace FCG.Domain.Entities
             Role = role;
         }
 
-        public static Usuario Adicionar(string nome, string apelido, string email, string senha, Role role)
+        public static Usuario Criar(Guid? id, string nome, string apelido, string email, string senha, Role role)
         {
-            var emailObj = new Email(email);
+            if (!EmailValido(email))
+                throw new OperacaoInvalidaException("Endereço de e-mail inválido.");
+
+            if (!SenhaForte(senha))
+                throw new OperacaoInvalidaException("A senha deve conter pelo menos uma letra, um número e um caractere especial.");
+
             var (senhaHash, salt) = GerarHashSenha(senha);
 
-            return new Usuario(Guid.NewGuid(), nome, apelido, emailObj, senhaHash, salt, role);
+            return new Usuario(id ?? Guid.NewGuid(), nome, apelido, email, senhaHash, salt, role);
         }
 
-        public static Usuario Alterar(Guid id, string nome, string apelido, string email, string senha, Role role)
+        public static bool EmailValido(string email)
         {
-            var emailObj = new Email(email);
-            var (senhaHash, salt) = GerarHashSenha(senha);
+            if (string.IsNullOrWhiteSpace(email))
+                return false;
 
-            return new Usuario(id, nome, apelido, emailObj, senhaHash, salt, role);
+            try
+            {
+                var endereco = new MailAddress(email);
+                return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool SenhaForte(string senha)
+        {
+            if (string.IsNullOrWhiteSpace(senha))
+                return false;
+
+            bool temLetra = Regex.IsMatch(senha, @"[a-zA-Z]");
+            bool temNumero = Regex.IsMatch(senha, @"\d");
+            bool temEspecial = Regex.IsMatch(senha, @"[!@#$%^&*(),.?""{}|<>]");
+
+            return temLetra && temNumero && temEspecial;
         }
 
         public void AlterarSenha(string novaSenha)
@@ -59,7 +86,7 @@ namespace FCG.Domain.Entities
 
         private static (string hash, string salt) GerarHashSenha(string senha)
         {
-            var salt = Guid.NewGuid().ToString(); // Gera um salt único
+            var salt = Guid.NewGuid().ToString();
             var hash = Argon2.Hash(senha + salt);
             return (hash, salt);
         }

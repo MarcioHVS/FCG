@@ -23,14 +23,9 @@ namespace FCG.Domain.Entities
             Valor = valor;
         }
 
-        public static Jogo Adicionar(string titulo, string descricao, Genero genero, decimal valor)
+        public static Jogo Criar(Guid? id, string titulo, string descricao, Genero genero, decimal valor)
         {
-            return new Jogo(Guid.NewGuid(), titulo, descricao, genero, valor);
-        }
-
-        public static Jogo Alterar(Guid id, string titulo, string descricao, Genero genero, decimal valor)
-        {
-            return new Jogo(id, titulo, descricao, genero, valor);
+            return new Jogo(id ?? Guid.NewGuid(), titulo, descricao, genero, valor);
         }
     }
 }

@@ -25,9 +25,10 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task ObterPromocaoAsync_PromocaoExistente_DeveRetornarPromocao()
         {
             // Arrange
-            var promocao = Promocao.Adicionar("CUPOM10", "Desconto de 10%", TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10));
+            var promocaoId = Guid.NewGuid();
+            var promocao = Promocao.Criar(promocaoId, "CUPOM10", "Desconto de 10%", TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10));
             promocao.Ativar();
-            var promocaoId = promocao.Id;
+            
             _promocaoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(promocaoId)).ReturnsAsync(promocao);
 
             // Act
@@ -69,8 +70,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var promocoes = new List<Promocao>
             {
-                Promocao.Adicionar("CUPOM10", "Desconto de 10%", TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10)),
-                Promocao.Adicionar("CUPOM20", "Desconto de 20%", TipoDesconto.Percentual, 20m, DateTime.UtcNow.AddDays(20))
+                Promocao.Criar(null, "CUPOM10", "Desconto de 10%", TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10)),
+                Promocao.Criar(null, "CUPOM20", "Desconto de 20%", TipoDesconto.Percentual, 20m, DateTime.UtcNow.AddDays(20))
             };
 
             _promocaoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ReturnsAsync(promocoes);
@@ -115,9 +116,9 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Arrange
             var promocoes = new List<Promocao>
             {
-                Promocao.Adicionar("CUPOM05", "Desconto de 5%", TipoDesconto.Percentual, 5m, DateTime.UtcNow.AddDays(5)),
-                Promocao.Adicionar("CUPOM10", "Desconto de 10%", TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10)),
-                Promocao.Adicionar("CUPOM20", "Desconto de 20%", TipoDesconto.Percentual, 20m, DateTime.UtcNow.AddDays(20))
+                Promocao.Criar(null, "CUPOM05", "Desconto de 5%", TipoDesconto.Percentual, 5m, DateTime.UtcNow.AddDays(5)),
+                Promocao.Criar(null, "CUPOM10", "Desconto de 10%", TipoDesconto.Percentual, 10m, DateTime.UtcNow.AddDays(10)),
+                Promocao.Criar(null, "CUPOM20", "Desconto de 20%", TipoDesconto.Percentual, 20m, DateTime.UtcNow.AddDays(20))
             };
 
             _promocaoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ReturnsAsync(promocoes.OrderBy(j => j.Cupom).ToList());
@@ -270,9 +271,9 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task AlterarPromocao_AlteracaoParcial_DeveAtualizarTodosCampos()
         {
             // Arrange
-            var promocaoOriginal = Promocao.Adicionar("CUPOM_ANTIGO", "Desconto antigo", TipoDesconto.Moeda, 30m, DateTime.UtcNow.AddDays(20));
+            var promocaoId = Guid.NewGuid();
+            var promocaoOriginal = Promocao.Criar(promocaoId, "CUPOM_ANTIGO", "Desconto antigo", TipoDesconto.Moeda, 30m, DateTime.UtcNow.AddDays(20));
             promocaoOriginal.Ativar();
-            var promocaoId = promocaoOriginal.Id;
 
             var promocaoDto = new PromocaoAlterarDto
             {
@@ -289,7 +290,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>()))
                 .Callback<Promocao>(p =>
                 {
-                    Promocao.Alterar(promocaoId, p.Cupom, p.Descricao, p.TipoDesconto, p.ValorDesconto, p.DataValidade);
+                    Promocao.Criar(promocaoId, p.Cupom, p.Descricao, p.TipoDesconto, p.ValorDesconto, p.DataValidade);
                     _promocaoRepositoryMock.Setup(repo => repo.ObterPorIdAsync(p.Id)).ReturnsAsync(p);
                 })
                 .Returns(Task.CompletedTask);

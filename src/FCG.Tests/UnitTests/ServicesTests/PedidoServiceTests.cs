@@ -42,15 +42,15 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task ObterPedido_Existente_DeveRetornarPedido()
         {
             // Arrange
-            var usuario = Usuario.Adicionar("Maria Luiza", "Malu", "malu@email.com", "SenhaValida", Role.Usuario);
+            var usuarioId = Guid.NewGuid();
+            var usuario = Usuario.Criar(usuarioId, "Maria Luiza", "Malu", "malu@email.com", "Senha@123", Role.Usuario);
             usuario.Ativar();
-            var usuarioId = usuario.Id;
 
-            var jogo = Jogo.Adicionar("Título Teste", "Descrição Teste", Genero.Aventura, 99.99m);
+            var jogoId = Guid.NewGuid();
+            var jogo = Jogo.Criar(jogoId, "Título Teste", "Descrição Teste", Genero.Aventura, 99.99m);
             jogo.Ativar();
-            var jogoId = jogo.Id;
 
-            var pedido = Pedido.Adicionar(usuarioId, jogoId);
+            var pedido = Pedido.Criar(null, usuarioId, jogoId);
             pedido.Usuario = usuario;
             pedido.Jogo = jogo;
             pedido.Ativar();
@@ -89,19 +89,19 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task ObterPedidos_PorUsuario_DeveRetornarLista()
         {
             // Arrange
-            var usuario = Usuario.Adicionar("Maria Luiza", "Malu", "malu@email.com", "SenhaValida", Role.Usuario);
+            var usuarioId = Guid.NewGuid();
+            var usuario = Usuario.Criar(usuarioId, "Maria Luiza", "Malu", "malu@email.com", "Senha@123", Role.Usuario);
             usuario.Ativar();
-            var usuarioId = usuario.Id;
 
-            var jogo1 = Jogo.Adicionar("Título Teste 1", "Descrição Teste 1", Genero.Aventura, 99.99m);
-            var jogo2 = Jogo.Adicionar("Título Teste 2", "Descrição Teste 2", Genero.Acao, 59.99m);
+            var jogo1 = Jogo.Criar(null, "Título Teste 1", "Descrição Teste 1", Genero.Aventura, 99.99m);
+            var jogo2 = Jogo.Criar(null, "Título Teste 2", "Descrição Teste 2", Genero.Acao, 59.99m);
             jogo1.Ativar();
             jogo2.Ativar();
 
             var pedidos = new List<Pedido>
             {
-                Pedido.Adicionar(usuarioId, jogo1.Id),
-                Pedido.Adicionar(usuarioId, jogo2.Id)
+                Pedido.Criar(null, usuarioId, jogo1.Id),
+                Pedido.Criar(null, usuarioId, jogo2.Id)
             };
 
             pedidos[0].Usuario = usuario;
@@ -109,7 +109,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
             pedidos[1].Usuario = usuario;
             pedidos[1].Jogo = jogo2;
 
-            _pedidoRepositoryMock.Setup(repo => repo.ObterPedidosPorUsuarioAsync(usuarioId)).ReturnsAsync(pedidos);
+            _pedidoRepositoryMock.Setup(repo => repo.ObterPedidosAsync(usuarioId)).ReturnsAsync(pedidos);
 
             // Act
             var resultado = await _pedidoService.ObterPedidosAsync(usuarioId);
@@ -125,20 +125,20 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task ObterPedidos_Geral_DeveRetornarLista()
         {
             // Arrange
-            var usuario1 = Usuario.Adicionar("Maria Luiza", "Malu", "malu@email.com", "SenhaValida", Role.Usuario);
-            var usuario2 = Usuario.Adicionar("Francisco Henrique", "Chico", "chico@email.com", "SenhaValida", Role.Usuario);
+            var usuario1 = Usuario.Criar(null, "Maria Luiza", "Malu", "malu@email.com", "Senha@123", Role.Usuario);
+            var usuario2 = Usuario.Criar(null, "Francisco Henrique", "Chico", "chico@email.com", "Senha@123", Role.Usuario);
             usuario1.Ativar();
             usuario2.Ativar();
 
-            var jogo1 = Jogo.Adicionar("Título Teste 1", "Descrição Teste 1", Genero.Aventura, 99.99m);
-            var jogo2 = Jogo.Adicionar("Título Teste 2", "Descrição Teste 2", Genero.Acao, 59.99m);
+            var jogo1 = Jogo.Criar(null, "Título Teste 1", "Descrição Teste 1", Genero.Aventura, 99.99m);
+            var jogo2 = Jogo.Criar(null, "Título Teste 2", "Descrição Teste 2", Genero.Acao, 59.99m);
             jogo1.Ativar();
             jogo2.Ativar();
 
             var pedidos = new List<Pedido>
             {
-                Pedido.Adicionar(usuario1.Id, jogo1.Id),
-                Pedido.Adicionar(usuario2.Id, jogo2.Id)
+                Pedido.Criar(null, usuario1.Id, jogo1.Id),
+                Pedido.Criar(null, usuario2.Id, jogo2.Id)
             };
 
             pedidos[0].Usuario = usuario1;
@@ -146,7 +146,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
             pedidos[1].Usuario = usuario2;
             pedidos[1].Jogo = jogo2;
 
-            _pedidoRepositoryMock.Setup(repo => repo.ObterTodosAsync()).ReturnsAsync(pedidos);
+            _pedidoRepositoryMock.Setup(repo => repo.ObterPedidosAsync(Guid.Empty)).ReturnsAsync(pedidos);
 
             // Act
             var resultado = await _pedidoService.ObterPedidosAsync(Guid.Empty);
@@ -177,8 +177,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task AdicionarPedido_ComSucesso_DeveAdicionar()
         {
             // Arrange
-            var usuario = Usuario.Adicionar("Márcio", "marciohvs", "email@email.com", "SenhaSegura", Role.Usuario);
-            var jogo = Jogo.Adicionar("Jogo Teste", "Descrição Teste", Genero.Aventura, 79.99m);
+            var usuario = Usuario.Criar(null, "Márcio", "marciohvs", "email@email.com", "Senha@123", Role.Usuario);
+            var jogo = Jogo.Criar(null, "Jogo Teste", "Descrição Teste", Genero.Aventura, 79.99m);
             var pedidoDto = new PedidoAdicionarDto { UsuarioId = usuario.Id, JogoId = jogo.Id, Cupom = "" };
 
             _pedidoRepositoryMock.Setup(repo => repo.ExistePedidoAsync(It.IsAny<Pedido>())).ReturnsAsync(false);
@@ -211,8 +211,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task AlterarPedido_ComSucesso_DeveAtualizar()
         {
             // Arrange
-            var usuario = Usuario.Adicionar("Márcio", "marciohvs", "email@email.com", "SenhaSegura", Role.Usuario);
-            var jogo = Jogo.Adicionar("Jogo Teste", "Descrição Teste", Genero.Aventura, 79.99m);
+            var usuario = Usuario.Criar(null, "Márcio", "marciohvs", "email@email.com", "Senha@123", Role.Usuario);
+            var jogo = Jogo.Criar(null, "Jogo Teste", "Descrição Teste", Genero.Aventura, 79.99m);
             var pedidoDto = new PedidoAlterarDto { Id = Guid.NewGuid(), UsuarioId = usuario.Id, JogoId = jogo.Id, Cupom = "" };
 
             _pedidoRepositoryMock.Setup(repo => repo.ExistePedidoAsync(It.IsAny<Pedido>())).ReturnsAsync(false);

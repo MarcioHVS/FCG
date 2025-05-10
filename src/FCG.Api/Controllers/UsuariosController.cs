@@ -11,20 +11,18 @@ namespace FCG.Api.Controllers
     public class UsuariosController : MainController
     {
         private readonly IUsuarioService _usuario;
-        private readonly IJwtService _jwtService;
 
-        public UsuariosController(IUsuarioService usuario, IJwtService jwtService)
+        public UsuariosController(IUsuarioService usuario)
         {
             _usuario = usuario;
-            _jwtService = jwtService;
         }
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginDto login)
         {
-            var usuario = await _usuario.LoginAsync(login);
+            var token = await _usuario.LoginAsync(login);
 
-            return CustomResponse(_jwtService.GerarToken(usuario));
+            return CustomResponse(token);
         }
 
         [Authorize(Roles = "Usuario,Administrador")]
@@ -113,19 +111,6 @@ namespace FCG.Api.Controllers
             await _usuario.DesativarUsuario(usuarioId);
 
             return CustomResponse("Usuario desativado com sucesso");
-        }
-
-        private bool ValidarPermissao(Guid usuarioId)
-        {
-            var usuarioLogadoId = Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var id) ? id : Guid.Empty;
-
-            if (User.IsInRole("Usuario") && usuarioId != usuarioLogadoId)
-            {
-                AdicionarErroProcessamento("Esta ação está limitada ao seu próprio cadastro. Você não tem permissão aos dados de outro usuário");
-                return false;
-            }
-
-            return true;
         }
     }
 }

@@ -50,7 +50,7 @@ namespace FCG.Api.Controllers
             if (!ValidarModelo())
                 return CustomResponse();
 
-            if(!TemPermissao(pedido.UsuarioId))
+            if(!ValidarPermissao(pedido.UsuarioId))
                 return CustomResponse();
 
             await _pedido.AdicionarPedido(pedido);
@@ -65,7 +65,7 @@ namespace FCG.Api.Controllers
             if (!ValidarModelo())
                 return CustomResponse();
 
-            if (!TemPermissao(pedido.UsuarioId))
+            if (!ValidarPermissao(pedido.UsuarioId))
                 return CustomResponse();
 
             await _pedido.AlterarPedido(pedido);
@@ -89,18 +89,6 @@ namespace FCG.Api.Controllers
             await _pedido.DesativarPedido(pedidoId);
 
             return CustomResponse("Pedido desativado com sucesso");
-        }
-
-        private bool TemPermissao(Guid usuarioId)
-        {
-            if (User.IsInRole("Usuario")
-               && !usuarioId.Equals(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value)))
-            {
-                AdicionarErroProcessamento("Esta ação é permitida somente para pedidos em seu nome");
-                return false;
-            }
-
-            return true;
         }
     }
 }

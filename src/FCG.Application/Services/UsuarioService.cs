@@ -9,13 +9,15 @@ namespace FCG.Application.Services
     public class UsuarioService : IUsuarioService
     {
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IJwtService _jwtService;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository)
+        public UsuarioService(IUsuarioRepository usuarioRepository, IJwtService jwtService)
         {
             _usuarioRepository = usuarioRepository;
+            _jwtService = jwtService;
         }
 
-        public async Task<UsuarioResponseDto> LoginAsync(LoginDto login)
+        public async Task<string> LoginAsync(LoginDto login)
         {
             var usuario = await _usuarioRepository.ObterUsuarioPorApelidoAsync(login.Apelido)
                 ?? throw new CredenciaisInvalidasException();
@@ -26,7 +28,7 @@ namespace FCG.Application.Services
             if (!usuario.ValidarSenha(login.Senha))
                 throw new CredenciaisInvalidasException();
 
-            return usuario.ToDto();
+            return _jwtService.GerarToken(usuario.ToDto());
         }
 
         public async Task<UsuarioResponseDto> ObterUsuarioAsync(Guid usuarioId)

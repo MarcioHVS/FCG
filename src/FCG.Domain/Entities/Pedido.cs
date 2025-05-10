@@ -22,14 +22,9 @@ namespace FCG.Domain.Entities
             JogoId = jogoId;
         }
 
-        public static Pedido Adicionar(Guid usuarioId, Guid jogoId)
+        public static Pedido Criar(Guid? id, Guid usuarioId, Guid jogoId)
         {
-            return new Pedido(Guid.NewGuid(), usuarioId, jogoId);
-        }
-
-        public static Pedido Alterar(Guid id, Guid usuarioId, Guid jogoId)
-        {
-            return new Pedido(id, usuarioId, jogoId);
+            return new Pedido(id ?? Guid.NewGuid(), usuarioId, jogoId);
         }
 
         public void CalcularValor(decimal valor, TipoDesconto tipoDesconto, decimal desconto)

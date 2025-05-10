@@ -21,13 +21,9 @@ namespace FCG.Infrastructure.Mappings
             builder.HasIndex(u => u.Apelido)
                 .IsUnique();
 
-            builder.OwnsOne(u => u.Email, tf =>
-            {
-                tf.Property(e => e.Endereco)
-                    .IsRequired()
-                    .HasColumnName("Email")
-                    .HasColumnType($"varchar(200)");
-            });
+            builder.Property(u => u.Email)
+                .IsRequired()
+                .HasColumnType($"varchar(200)");
 
             builder.Property(u => u.Senha)
                 .IsRequired()

@@ -14,7 +14,7 @@ namespace FCG.Domain.Entities
         protected Promocao() { }
 
         private Promocao(Guid id, string cupom, string descricao, TipoDesconto tipoDesconto,
-                        decimal valorDesconto, DateTime dataValidade)
+                         decimal valorDesconto, DateTime dataValidade)
         {
             Id = id;
             Cupom = cupom;
@@ -24,16 +24,10 @@ namespace FCG.Domain.Entities
             DataValidade = dataValidade;
         }
 
-        public static Promocao Adicionar(string cupom, string descricao, TipoDesconto tipoDesconto,
+        public static Promocao Criar(Guid? id, string cupom, string descricao, TipoDesconto tipoDesconto,
                                      decimal valorDesconto, DateTime dataValidade)
         {
-            return new Promocao(Guid.NewGuid(), cupom, descricao, tipoDesconto, valorDesconto, dataValidade);
-        }
-
-        public static Promocao Alterar(Guid id, string cupom, string descricao, TipoDesconto tipoDesconto,
-                                       decimal valorDesconto, DateTime dataValidade)
-        {
-            return new Promocao(id, cupom, descricao, tipoDesconto, valorDesconto, dataValidade);
+            return new Promocao(id ?? Guid.NewGuid(), cupom, descricao, tipoDesconto, valorDesconto, dataValidade);
         }
     }
 }

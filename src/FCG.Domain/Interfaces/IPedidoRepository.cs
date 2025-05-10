@@ -12,6 +12,6 @@ namespace FCG.Domain.Interfaces
         Task Desativar(Guid id);
 
         Task<bool> ExistePedidoAsync(Pedido pedido);
-        Task<IEnumerable<Pedido>> ObterPedidosPorUsuarioAsync(Guid usuarioId);
+        Task<IEnumerable<Pedido>> ObterPedidosAsync(Guid usuarioId);
     }
 }

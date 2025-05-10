@@ -4,7 +4,7 @@ namespace FCG.Application.Interfaces
 {
     public interface IUsuarioService
     {
-        Task<UsuarioResponseDto> LoginAsync(LoginDto login);
+        Task<string> LoginAsync(LoginDto login);
         Task<UsuarioResponseDto> ObterUsuarioAsync(Guid usuarioId);
         Task<IEnumerable<UsuarioResponseDto>> ObterUsuariosAsync();
         Task AdicionarUsuario(UsuarioAdicionarDto usuarioDto);

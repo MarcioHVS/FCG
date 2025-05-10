@@ -7,14 +7,14 @@ namespace FCG.Application.Mappers
     {
         public static Jogo ToDomain(this JogoAdicionarDto jogoDto)
         {
-            return Jogo.Adicionar(jogoDto.Titulo, jogoDto.Descricao,
+            return Jogo.Criar(null, jogoDto.Titulo, jogoDto.Descricao,
                               jogoDto.Genero, jogoDto.Valor);
         }
 
         public static Jogo ToDomain(this JogoAlterarDto jogoDto)
         {
-            return Jogo.Alterar(jogoDto.Id, jogoDto.Titulo, jogoDto.Descricao,
-                                jogoDto.Genero, jogoDto.Valor);
+            return Jogo.Criar(jogoDto.Id, jogoDto.Titulo, jogoDto.Descricao,
+                              jogoDto.Genero, jogoDto.Valor);
         }
 
         public static JogoResponseDto ToDto(this Jogo jogo)
@@ -26,7 +26,6 @@ namespace FCG.Application.Mappers
                 Descricao = jogo.Descricao,
                 Genero = jogo.Genero,
                 Valor = jogo.Valor,
-                DataCadastro = jogo.DataCadastro
             };
         }
     }

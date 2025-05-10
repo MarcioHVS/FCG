@@ -13,46 +13,51 @@ namespace FCG.Tests.UnitTests.ServicesTests
     public class UsuarioServiceTests
     {
         private readonly Mock<IUsuarioRepository> _usuarioRepositoryMock;
+        private readonly Mock<IJwtService> _jwtService;
         private readonly IUsuarioService _usuarioService;
 
         public UsuarioServiceTests()
         {
             _usuarioRepositoryMock = new Mock<IUsuarioRepository>();
-            _usuarioService = new UsuarioService(_usuarioRepositoryMock.Object);
+            _jwtService = new Mock<IJwtService>();
+            _usuarioService = new UsuarioService(_usuarioRepositoryMock.Object, _jwtService.Object);
         }
 
         #region Login
         [Fact]
-        public async Task Login_ComSucesso_DeveRetornarUsuario()
+        public async Task Login_ComSucesso_DeveRetornarToken()
         {
             // Arrange
-            var usuario = Usuario.Adicionar("Maria Luiza", "Malu", "malu@email.com", "SenhaValida", Role.Usuario);
+            var usuario = Usuario.Criar(null, "Maria Luiza", "Malu", "malu@email.com", "Senha@123", Role.Usuario);
             usuario.Ativar();
 
             _usuarioRepositoryMock.Setup(repo => repo.ObterUsuarioPorApelidoAsync(usuario.Apelido))
                 .ReturnsAsync(usuario);
 
-            var loginDto = new LoginDto { Apelido = usuario.Apelido, Senha = "SenhaValida" };
+            _jwtService.Setup(service => service.GerarToken(It.IsAny<UsuarioResponseDto>()))
+                .Returns("TokenGeradoFake");
+
+            var loginDto = new LoginDto { Apelido = usuario.Apelido, Senha = "Senha@123" };
 
             // Act
             var resultado = await _usuarioService.LoginAsync(loginDto);
 
             // Assert
             Assert.NotNull(resultado);
-            Assert.Equal(usuario.Apelido, resultado.Apelido);
+            Assert.Equal("TokenGeradoFake", resultado); // Agora testamos se o token foi gerado corretamente
         }
 
         [Fact]
         public async Task Login_SenhaErrada_DeveLancarExcecao()
         {
             // Arrange
-            var usuario = Usuario.Adicionar("Maria Luiza", "Malu", "malu@email.com", "SenhaValida", Role.Usuario);
+            var usuario = Usuario.Criar(null, "Maria Luiza", "Malu", "malu@email.com", "Senha@123", Role.Usuario);
             usuario.Ativar();
 
             _usuarioRepositoryMock.Setup(repo => repo.ObterUsuarioPorApelidoAsync(usuario.Apelido))
                 .ReturnsAsync(usuario);
 
-            var loginDto = new LoginDto { Apelido = usuario.Apelido, Senha = "SenhaIncorreta" };
+            var loginDto = new LoginDto { Apelido = usuario.Apelido, Senha = "Senha@321" };
 
             // Act & Assert
             await Assert.ThrowsAsync<CredenciaisInvalidasException>(() => _usuarioService.LoginAsync(loginDto));
@@ -62,7 +67,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task Login_UsuarioErrado_DeveLancarExcecao()
         {
             // Arrange
-            var usuario = Usuario.Adicionar("Maria Luiza", "Malu", "malu@email.com", "SenhaValida", Role.Usuario);
+            var usuario = Usuario.Criar(null, "Maria Luiza", "Malu", "malu@email.com", "Senha@123", Role.Usuario);
             usuario.Ativar();
 
             _usuarioRepositoryMock.Setup(repo => repo.ObterUsuarioPorApelidoAsync(usuario.Apelido))
@@ -78,7 +83,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task Login_UsuarioInativo_DeveLancarExcecao()
         {
             // Arrange
-            var usuario = Usuario.Adicionar("Maria Luiza", "Malu", "malu@email.com", "SenhaValida", Role.Usuario);
+            var usuario = Usuario.Criar(null, "Maria Luiza", "Malu", "malu@email.com", "Senha@123", Role.Usuario);
             usuario.Desativar();
 
             _usuarioRepositoryMock.Setup(repo => repo.ObterUsuarioPorApelidoAsync(usuario.Apelido))
@@ -96,7 +101,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task ObterUsuario_Existente_DeveRetornarUsuario()
         {
             // Arrange
-            var usuario = Usuario.Adicionar("Maria Luiza", "Malu", "malu@email.com", "SenhaValida", Role.Usuario);
+            var usuario = Usuario.Criar(null, "Maria Luiza", "Malu", "malu@email.com", "Senha@123", Role.Usuario);
             usuario.Ativar();
 
             _usuarioRepositoryMock.Setup(repo => repo.ObterPorIdAsync(usuario.Id)).ReturnsAsync(usuario);
@@ -123,7 +128,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
 
         #region AdicionarUsuario
         [Fact]
-        public async Task AdicionarUsuario_ComSucesso()
+        public async Task AdicionarUsuario_ComDadosCorreto_DeveAdicionarUsuario()
         {
             // Arrange
             var usuarioDto = new UsuarioAdicionarDto
@@ -131,7 +136,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
                 Nome = "Maria Luiza",
                 Apelido = "Malu",
                 Email = "malu@email.com",
-                Senha = "SenhaValida",
+                Senha = "Senha@123",
                 Role = Role.Usuario
             };
 
@@ -143,6 +148,44 @@ namespace FCG.Tests.UnitTests.ServicesTests
             // Assert
             _usuarioRepositoryMock.Verify(repo => repo.Adicionar(It.IsAny<Usuario>()), Times.Once);
         }
+
+        [Fact]
+        public async Task AdicionarUsuario_ComSenhaIncorreta_DeveLancarExcecao()
+        {
+            // Arrange
+            var usuarioDto = new UsuarioAdicionarDto
+            {
+                Nome = "Maria Luiza",
+                Apelido = "Malu",
+                Email = "malu@email.com",
+                Senha = "SenhaSimples",
+                Role = Role.Usuario
+            };
+
+            _usuarioRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Usuario>())).Returns(Task.CompletedTask);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<OperacaoInvalidaException>(() => _usuarioService.AdicionarUsuario(usuarioDto));
+        }
+
+        [Fact]
+        public async Task AdicionarUsuario_ComEmailIncorreto_DeveLancarExcecao()
+        {
+            // Arrange
+            var usuarioDto = new UsuarioAdicionarDto
+            {
+                Nome = "Maria Luiza",
+                Apelido = "Malu",
+                Email = "malu_email.com",
+                Senha = "Senha@123",
+                Role = Role.Usuario
+            };
+
+            _usuarioRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Usuario>())).Returns(Task.CompletedTask);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<OperacaoInvalidaException>(() => _usuarioService.AdicionarUsuario(usuarioDto));
+        }
         #endregion
 
         #region AlterarSenha
@@ -150,12 +193,12 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task AlterarSenha_ComSucesso()
         {
             // Arrange
-            var usuario = Usuario.Adicionar("Maria Luiza", "Malu", "malu@email.com", "SenhaAntiga", Role.Usuario);
+            var usuario = Usuario.Criar(null, "Maria Luiza", "Malu", "malu@email.com", "Senha@123", Role.Usuario);
 
             _usuarioRepositoryMock.Setup(repo => repo.ObterPorIdAsync(usuario.Id)).ReturnsAsync(usuario);
 
             // Act
-            await _usuarioService.AlterarSenha(usuario.Id, "NovaSenha");
+            await _usuarioService.AlterarSenha(usuario.Id, "Senha@321");
 
             // Assert
             _usuarioRepositoryMock.Verify(repo => repo.Alterar(usuario), Times.Once);

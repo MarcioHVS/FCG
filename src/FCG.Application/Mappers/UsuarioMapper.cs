@@ -7,14 +7,14 @@ namespace FCG.Application.Mappers
     {
         public static Usuario ToDomain(this UsuarioAdicionarDto usuarioDto)
         {
-            return Usuario.Adicionar(usuarioDto.Nome, usuarioDto.Apelido, 
+            return Usuario.Criar(null, usuarioDto.Nome, usuarioDto.Apelido, 
                                  usuarioDto.Email, usuarioDto.Senha, usuarioDto.Role);
         }
 
         public static Usuario ToDomain(this UsuarioAlterarDto usuarioDto)
         {
-            return Usuario.Alterar(usuarioDto.Id, usuarioDto.Nome, usuarioDto.Apelido, 
-                                   usuarioDto.Email, string.Empty, usuarioDto.Role);
+            return Usuario.Criar(usuarioDto.Id, usuarioDto.Nome, usuarioDto.Apelido, 
+                                 usuarioDto.Email, string.Empty, usuarioDto.Role);
         }
 
         public static UsuarioResponseDto ToDto(this Usuario usuario)
@@ -24,9 +24,8 @@ namespace FCG.Application.Mappers
                 Id = usuario.Id,
                 Nome = usuario.Nome,
                 Apelido = usuario.Apelido,
-                Email = usuario.Email.Endereco,
+                Email = usuario.Email,
                 Role = usuario.Role,
-                DataCadastro = usuario.DataCadastro
             };
         }
     }

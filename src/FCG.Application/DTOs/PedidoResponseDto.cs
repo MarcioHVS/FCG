@@ -5,6 +5,5 @@
         public Guid Id { get; set; }
         public UsuarioResponseDto Usuario { get; set; }
         public JogoResponseDto Jogo { get; set; }
-        public DateTime DataCadastro { get; set; }
     }
 }

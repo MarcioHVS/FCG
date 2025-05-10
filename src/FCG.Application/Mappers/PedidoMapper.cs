@@ -7,12 +7,12 @@ namespace FCG.Application.Mappers
     {
         public static Pedido ToDomain(this PedidoAdicionarDto pedidoDto)
         {
-            return Pedido.Adicionar(pedidoDto.UsuarioId, pedidoDto.JogoId);
+            return Pedido.Criar(null, pedidoDto.UsuarioId, pedidoDto.JogoId);
         }
 
         public static Pedido ToDomain(this PedidoAlterarDto pedidoDto)
         {
-            return Pedido.Alterar(pedidoDto.Id, pedidoDto.UsuarioId, pedidoDto.JogoId);
+            return Pedido.Criar(pedidoDto.Id, pedidoDto.UsuarioId, pedidoDto.JogoId);
         }
 
         public static PedidoResponseDto ToDto(this Pedido pedido)
@@ -25,9 +25,8 @@ namespace FCG.Application.Mappers
                                 Id = pedido.Usuario.Id,
                                 Nome = pedido.Usuario.Nome,
                                 Apelido = pedido.Usuario.Apelido,
-                                Email = pedido.Usuario.Email.Endereco,
+                                Email = pedido.Usuario.Email,
                                 Role = pedido.Usuario.Role,
-                                DataCadastro = pedido.Usuario.DataCadastro
                             },
                 Jogo = new JogoResponseDto
                             {
@@ -36,9 +35,7 @@ namespace FCG.Application.Mappers
                                 Descricao = pedido.Jogo.Descricao,
                                 Genero = pedido.Jogo.Genero,
                                 Valor = pedido.Valor,
-                                DataCadastro = pedido.DataCadastro
-                            },
-                DataCadastro = pedido.DataCadastro
+                            }
             };
         }
     }

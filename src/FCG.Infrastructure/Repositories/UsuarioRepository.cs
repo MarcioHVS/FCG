@@ -29,7 +29,7 @@ namespace FCG.Infrastructure.Repositories
         public async Task<bool> ExisteEmailAsync(string email, Guid usuarioId)
         {
             return await _context.Usuarios.AsNoTracking()
-                .Where(u => !u.Id.Equals(usuarioId) && u.Email.Endereco.Equals(email)).AnyAsync();
+                .Where(u => !u.Id.Equals(usuarioId) && u.Email.Equals(email)).AnyAsync();
         }
     }
 }
