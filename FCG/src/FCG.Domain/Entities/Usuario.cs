@@ -21,7 +21,7 @@ namespace FCG.Domain.Entities
         //EF
         protected Usuario() { }
 
-        private Usuario(Guid id, string nome, string apelido, string email, string senhaHash, string salt, Role role)
+        private Usuario(Guid id, string nome, string apelido, string email, string senhaHash, string salt)
         {
             Id = id;
             Nome = nome;
@@ -29,13 +29,14 @@ namespace FCG.Domain.Entities
             Email = email;
             Senha = senhaHash;
             Salt = salt;
-            Role = role;
         }
 
         public void AdicionarTentativaLoginErrada() => TentativasLogin ++;
         public void ZerarTentativasLoginErrada() => TentativasLogin = 0;
+        public void TornarAdministrador() => Role = Role.Administrador;
+        public void TornarUsuario() => Role = Role.Usuario;
 
-        public static Usuario CriarAlterar(Guid? id, string nome, string apelido, string email, string senha, Role role)
+        public static Usuario CriarAlterar(Guid? id, string nome, string apelido, string email, string senha)
         {
             if (!EmailValido(email))
                 throw new Exception("Endereço de e-mail inválido.");
@@ -45,7 +46,7 @@ namespace FCG.Domain.Entities
 
             var (senhaHash, salt) = GerarHashSenha(senha);
 
-            return new Usuario(id ?? Guid.NewGuid(), nome, apelido, email, senhaHash, salt, role);
+            return new Usuario(id ?? Guid.NewGuid(), nome, apelido, email, senhaHash, salt);
         }
 
         public static bool EmailValido(string email)
