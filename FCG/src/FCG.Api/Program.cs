@@ -1,25 +1,40 @@
-var builder = WebApplication.CreateBuilder(args);
+using FCG.Api.Configurations;
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+namespace FCG.Api
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    public class Program
+    {
+        private static WebApplicationBuilder _builder;
+        private static WebApplication _app;
+
+        public static void Main(string[] args)
+        {
+            _builder = WebApplication.CreateBuilder(args);
+            _builder.Configuration.SetDefaultConfig(_builder.Environment);
+
+            ConfigureServices();
+
+            _app = _builder.Build();
+
+            ConfigureRequestsPipeline();
+
+            _app.Run();
+        }
+
+        private static void ConfigureServices()
+        {
+            _builder.AddApiConfiguration();
+
+            _builder.AddSwaggerConfiguration();
+
+            _builder.RegisterDependencies();
+        }
+
+        private static void ConfigureRequestsPipeline()
+        {
+            _app.UseApiConfiguration();
+
+            _app.UseSwaggerConfiguration();
+        }
+    }
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
