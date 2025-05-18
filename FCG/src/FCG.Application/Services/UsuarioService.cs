@@ -74,16 +74,10 @@ namespace FCG.Application.Services
         }
 
         public async Task AdicionarUsuario(UsuarioAdicionarDto usuarioDto)
-        {
-            await _usuarioRepository.Adicionar(usuarioDto.ToDomain());
-        }
+            => await _usuarioRepository.Adicionar(usuarioDto.ToDomain());
 
         public async Task AlterarUsuario(UsuarioAlterarDto usuarioDto)
-        {
-            var usuario = usuarioDto.ToDomain();
-
-            await _usuarioRepository.Alterar(usuario);
-        }
+            => await _usuarioRepository.Alterar(usuarioDto.ToDomain());
 
         public async Task AlterarSenha(Guid usuarioId, string novaSenha)
         {
@@ -94,32 +88,24 @@ namespace FCG.Application.Services
         }
 
         public async Task AtivarUsuario(Guid usuarioId)
-        {
-            await _usuarioRepository.Ativar(usuarioId);
-        }
+            => await _usuarioRepository.Ativar(usuarioId);
 
         public async Task DesativarUsuario(Guid usuarioId)
-        {
-            await _usuarioRepository.Desativar(usuarioId);
-        }
+            => await _usuarioRepository.Desativar(usuarioId);
 
         public async Task TornarUsuario(Guid usuarioId)
-        {
-            var usuario = await _usuarioRepository.ObterPorId(usuarioId)
-                ?? throw new KeyNotFoundException("Usuário não encontrado com o Id informado");
-
-            usuario.TornarUsuario();
-
-            await _usuarioRepository.Alterar(usuario);
-        }
+            => await AlterarTipoUsuario(usuarioId, u => u.TornarUsuario());
 
         public async Task TornarAdministrador(Guid usuarioId)
+            => await AlterarTipoUsuario(usuarioId, u => u.TornarAdministrador());
+
+        #region Métodos Privados
+        private async Task AlterarTipoUsuario(Guid usuarioId, Action<Usuario> alterarFunc)
         {
             var usuario = await _usuarioRepository.ObterPorId(usuarioId)
                 ?? throw new KeyNotFoundException("Usuário não encontrado com o Id informado");
 
-            usuario.TornarAdministrador();
-
+            alterarFunc(usuario);
             await _usuarioRepository.Alterar(usuario);
         }
 
@@ -150,5 +136,6 @@ namespace FCG.Application.Services
 
             return usuario;
         }
+        #endregion
     }
 }

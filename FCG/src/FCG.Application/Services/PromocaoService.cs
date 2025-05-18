@@ -1,6 +1,7 @@
 ﻿using FCG.Application.DTOs;
 using FCG.Application.Interfaces;
 using FCG.Application.Mappers;
+using FCG.Domain.Entities;
 using FCG.Domain.Interfaces;
 
 namespace FCG.Application.Services
@@ -45,23 +46,34 @@ namespace FCG.Application.Services
         }
 
         public async Task AdicionarPromocao(PromocaoAdicionarDto promocaoDto)
-        {
-            await _promocaoRepository.Adicionar(promocaoDto.ToDomain());
-        }
+            => await ProcessarPromocao(promocaoDto.ToDomain(), _promocaoRepository.Adicionar);
 
         public async Task AlterarPromocao(PromocaoAlterarDto promocaoDto)
-        {
-            await _promocaoRepository.Alterar(promocaoDto.ToDomain());
-        }
+            => await ProcessarPromocao(promocaoDto.ToDomain(), _promocaoRepository.Alterar);
 
         public async Task AtivarPromocao(Guid promocaoId)
-        {
-            await _promocaoRepository.Ativar(promocaoId);
-        }
+            => await _promocaoRepository.Ativar(promocaoId);
 
         public async Task DesativarPromocao(Guid promocaoId)
+            => await _promocaoRepository.Desativar(promocaoId);
+
+        #region Métodos Privados
+        private async Task ProcessarPromocao(Promocao promocao, Func<Promocao, Task> operacao)
         {
-            await _promocaoRepository.Desativar(promocaoId);
+            ValidarPromocao(promocao);
+
+            await operacao(promocao);
         }
+
+        private static void ValidarPromocao<T>(T promocaoDto) where T : class
+        {
+            dynamic dto = promocaoDto;
+
+            if (dto.DataValidade < DateTime.Now)
+                throw new ArgumentOutOfRangeException(nameof(dto.DataValidade), "A data de validade da promoção é inválida.");
+
+            dto.ValorDesconto = Math.Abs(dto.ValorDesconto);
+        }
+        #endregion
     }
 }

@@ -45,23 +45,15 @@ namespace FCG.Application.Services
         }
 
         public async Task AdicionarJogo(JogoAdicionarDto jogoDto)
-        {
-            await _jogoRepository.Adicionar(jogoDto.ToDomain());
-        }
+            => await _jogoRepository.Adicionar(jogoDto.ToDomain());
 
         public async Task AlterarJogo(JogoAlterarDto jogoDto)
-        {
-            await _jogoRepository.Alterar(jogoDto.ToDomain());
-        }
+            => await _jogoRepository.Alterar(jogoDto.ToDomain());
 
         public async Task AtivarJogo(Guid jogoId)
-        {
-            await _jogoRepository.Ativar(jogoId);
-        }
+            => await _jogoRepository.Ativar(jogoId);
 
         public async Task DesativarJogo(Guid jogoId)
-        {
-            await _jogoRepository.Desativar(jogoId);
-        }
+            => await _jogoRepository.Desativar(jogoId);
     }
 }

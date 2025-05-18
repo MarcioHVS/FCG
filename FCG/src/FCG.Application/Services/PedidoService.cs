@@ -47,36 +47,25 @@ namespace FCG.Application.Services
         }
 
         public async Task AdicionarPedido(PedidoAdicionarDto pedidoDto)
-        {
-            var pedido = pedidoDto.ToDomain();
-
-            if(await _pedidoRepository.Existe(pedido))
-                throw new Exception("Já existe um pedido com as mesmas informações");
-
-            await CalcularValorPedido(pedido, pedidoDto.Cupom);
-
-            await _pedidoRepository.Adicionar(pedido);
-        }
+            => await ProcessarPedido(pedidoDto.ToDomain(), pedidoDto.Cupom, _pedidoRepository.Adicionar);
 
         public async Task AlterarPedido(PedidoAlterarDto pedidoDto)
-        {
-            var pedido = pedidoDto.ToDomain();
-            if (await _pedidoRepository.Existe(pedido))
-                throw new Exception("Já existe um pedido com as mesmas informações");
-
-            await CalcularValorPedido(pedido, pedidoDto.Cupom);
-
-            await _pedidoRepository.Alterar(pedidoDto.ToDomain());
-        }
+            => await ProcessarPedido(pedidoDto.ToDomain(), pedidoDto.Cupom, _pedidoRepository.Alterar);
 
         public async Task AtivarPedido(Guid pedidoId)
-        {
-            await _pedidoRepository.Ativar(pedidoId);
-        }
+            => await _pedidoRepository.Ativar(pedidoId);
 
         public async Task DesativarPedido(Guid pedidoId)
+            => await _pedidoRepository.Desativar(pedidoId);
+
+        #region Métodos Privados
+        private async Task ProcessarPedido(Pedido pedido, string cupom, Func<Pedido, Task> operacao)
         {
-            await _pedidoRepository.Desativar(pedidoId);
+            if (await _pedidoRepository.Existe(pedido))
+                throw new Exception("Já existe um pedido com as mesmas informações.");
+
+            await CalcularValorPedido(pedido, cupom);
+            await operacao(pedido);
         }
 
         private async Task CalcularValorPedido(Pedido pedido, string cupom)
@@ -89,5 +78,6 @@ namespace FCG.Application.Services
                                  promocao?.TipoDesconto ?? TipoDesconto.Moeda, 
                                  promocao?.ValorDesconto ?? 0);
         }
+        #endregion
     }
 }
