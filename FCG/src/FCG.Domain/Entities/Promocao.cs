@@ -20,7 +20,7 @@ namespace FCG.Domain.Entities
             Cupom = cupom;
             Descricao = descricao;
             TipoDesconto = tipoDesconto;
-            ValorDesconto = valorDesconto;
+            ValorDesconto = Math.Abs(valorDesconto);
             DataValidade = dataValidade;
         }
 

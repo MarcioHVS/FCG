@@ -40,7 +40,7 @@ namespace FCG.Application.Services
 
         public async Task<IEnumerable<PromocaoResponseDto>> ObterPromocoesAtivas()
         {
-            var promocoes = await _promocaoRepository.ObterTodos();
+            var promocoes = await _promocaoRepository.ObterTodosAtivos();
 
             return promocoes.Select(p => p.ToDto());
         }
@@ -68,11 +68,11 @@ namespace FCG.Application.Services
         private static void ValidarPromocao<T>(T promocaoDto) where T : class
         {
             dynamic dto = promocaoDto;
+            var dataLocal = TimeZoneInfo.ConvertTimeFromUtc
+                (dto.DataValidade, TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo"));
 
-            if (dto.DataValidade < DateTime.Now)
-                throw new ArgumentOutOfRangeException(nameof(dto.DataValidade), "A data de validade da promoção é inválida.");
-
-            dto.ValorDesconto = Math.Abs(dto.ValorDesconto);
+            if (dataLocal < DateTime.Now.AddMinutes(10))
+                throw new ArgumentOutOfRangeException(nameof(dto.DataValidade), "A data de validade da promoção deve ser, no mínimo, 10 minutos maior que a data atual.");
         }
         #endregion
     }

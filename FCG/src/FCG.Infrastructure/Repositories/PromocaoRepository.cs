@@ -17,13 +17,13 @@ namespace FCG.Infrastructure.Repositories
         public override async Task<IEnumerable<Promocao>> ObterTodos()
         {
             return await _context.Promocoes.AsNoTracking()
-                .Where(p => p.DataValidade >= DateTime.Now).ToListAsync();
+                .Where(p => p.DataValidade >= DateTime.UtcNow).ToListAsync();
         }
 
         public override async Task<IEnumerable<Promocao>> ObterTodosAtivos()
         {
             return await _context.Promocoes.AsNoTracking()
-                .Where(p => p.Ativo && p.DataValidade >= DateTime.Now).ToListAsync();
+                .Where(p => p.Ativo && p.DataValidade >= DateTime.UtcNow).ToListAsync();
         }
 
         public async Task<bool> Existe(string cupom)
