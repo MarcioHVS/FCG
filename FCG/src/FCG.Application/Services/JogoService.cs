@@ -28,7 +28,7 @@ namespace FCG.Application.Services
         public async Task<JogoResponseDto> ObterJogoPorTitulo(string titulo)
         {
             var jogo = await _jogoRepository.ObterPorTitulo(titulo)
-                ?? throw new KeyNotFoundException("Jogo não encontrado com o Id informado");
+                ?? throw new KeyNotFoundException("Jogo não encontrado com o Título informado");
 
             return jogo.ToDto();
         }
