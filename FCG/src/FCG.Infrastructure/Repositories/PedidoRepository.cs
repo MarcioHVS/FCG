@@ -34,7 +34,7 @@ namespace FCG.Infrastructure.Repositories
             return await _context.Pedidos.AsNoTracking()
                 .Include(p => p.Usuario)
                 .Include(p => p.Jogo)
-                .Where(e => e.UsuarioId == usuarioId).ToListAsync();
+                .Where(p => p.Ativo && p.UsuarioId == usuarioId).ToListAsync();
         }
     }
 }
