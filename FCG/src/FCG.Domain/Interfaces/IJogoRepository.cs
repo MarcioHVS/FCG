@@ -13,7 +13,7 @@ namespace FCG.Domain.Interfaces
         Task Ativar(Guid id);
         Task Desativar(Guid id);
 
-        Task<bool> Existe(string titulo);
+        Task<bool> Existe(Guid jogoId, string titulo);
         Task<Jogo?> ObterPorTitulo(string titulo);
     }
 }

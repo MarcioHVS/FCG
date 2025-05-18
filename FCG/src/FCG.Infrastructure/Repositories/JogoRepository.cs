@@ -14,10 +14,10 @@ namespace FCG.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<bool> Existe(string titulo)
+        public async Task<bool> Existe(Guid jogoId, string titulo)
         {
             return await _context.Jogos.AsNoTracking()
-                .Where(j => j.Titulo == titulo).AnyAsync();
+                .Where(j => j.Id != jogoId && j.Titulo == titulo).AnyAsync();
         }
 
         public async Task<Jogo?> ObterPorTitulo(string titulo)

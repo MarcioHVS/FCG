@@ -5,7 +5,7 @@ namespace FCG.Domain.Enums
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Genero
     {
-        Acao,
+        Acao = 1,
         Aventura,
         RPG,
         FPS,
