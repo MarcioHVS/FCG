@@ -20,7 +20,7 @@ namespace FCG.Infrastructure.Repositories
             return await _context.Pedidos.AsNoTracking()
                 .Include(p => p.Usuario)
                 .Include(p => p.Jogo)
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<bool> Existe(Pedido pedido)

@@ -25,6 +25,9 @@ namespace FCG.Infrastructure.Mappings
                 .IsRequired()
                 .HasColumnType($"varchar(200)");
 
+            builder.HasIndex(u => u.Email)
+                .IsUnique();
+
             builder.Property(u => u.Senha)
                 .IsRequired()
                 .HasColumnType("nvarchar(1000)");
