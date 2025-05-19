@@ -41,6 +41,10 @@ namespace FCG.Infrastructure.Contexts
                 var saltProperty = entry.Property(nameof(Usuario.Salt));
                 if (entry.State == EntityState.Modified && saltProperty.CurrentValue is string salt && string.IsNullOrEmpty(salt))
                     saltProperty.IsModified = false;
+
+                var codigoAtivacaoProperty = entry.Property(nameof(Usuario.CodigoAtivacao));
+                if (entry.State == EntityState.Modified && codigoAtivacaoProperty.CurrentValue is null)
+                    codigoAtivacaoProperty.IsModified = false;
             }
 
             var salvo = await base.SaveChangesAsync(cancellationToken) > 0;

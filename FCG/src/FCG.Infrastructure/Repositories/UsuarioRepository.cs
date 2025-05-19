@@ -37,5 +37,14 @@ namespace FCG.Infrastructure.Repositories
             return await _context.Usuarios.AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
+
+        public override async Task Adicionar(Usuario usuario)
+        {
+            usuario.Desativar();
+
+            _context.Usuarios.Add(usuario);
+            
+            await _context.Salvar();
+        }
     }
 }

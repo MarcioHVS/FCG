@@ -41,10 +41,16 @@ namespace FCG.Domain.Entities
             if (!EmailValido(email))
                 throw new Exception("Endereço de e-mail inválido.");
 
-            if (!SenhaForte(senha))
-                throw new Exception("A senha deve conter pelo menos uma letra, um número e um caractere especial.");
+            var senhaHash = string.Empty;
+            var salt = string.Empty;
 
-            var (senhaHash, salt) = GerarHashSenha(senha);
+            if (id == null)
+            {
+                if (!SenhaForte(senha))
+                    throw new Exception("A senha deve conter pelo menos uma letra, um número e um caractere especial.");
+
+                (senhaHash, salt) = GerarHashSenha(senha);
+            }
 
             return new Usuario(id ?? Guid.NewGuid(), nome, apelido, email, senhaHash, salt);
         }

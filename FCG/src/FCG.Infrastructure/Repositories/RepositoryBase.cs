@@ -38,7 +38,7 @@ namespace FCG.Infrastructure.Repositories
                 .Where(e => e.Ativo).ToListAsync();
         }
 
-        public async Task Adicionar(T entidade)
+        public virtual async Task Adicionar(T entidade)
         {
             entidade.Ativar();
             _dbSet.Add(entidade);

@@ -9,5 +9,6 @@ namespace FCG.Application.DTOs
         public required string Apelido { get; set; }
         public required string Email { get; set; }
         public required Role Role { get; set; }
+        public required string Status { get; set; }
     }
 }

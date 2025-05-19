@@ -17,20 +17,19 @@ namespace FCG.Application.Services
 
         public async Task<string> Login(LoginDto login)
         {
-            var usuario = await ValidarAcesso(login.Apelido, login.Senha);
+            var usuario = await ValidarAcesso(login.Apelido, login.Senha, false);
 
             return Convert.ToBase64String(usuario.Id.ToByteArray());
         }
 
         public async Task<string> LoginAtivacao(LoginAtivacaoDto login)
         {
-            var usuario = await ValidarAcesso(login.Apelido, login.Senha);
+            var usuario = await ValidarAcesso(login.Apelido, login.Senha, true);
 
             if (!usuario.ValidarCodigoAtivacao(login.CodigoAtivacao))
                 throw new InvalidOperationException("Código de ativação inválido");
 
-            usuario.Ativar();
-            await _usuarioRepository.Alterar(usuario);
+            await _usuarioRepository.Ativar(usuario.Id);
 
             return Convert.ToBase64String(usuario.Id.ToByteArray());
         }
@@ -109,23 +108,34 @@ namespace FCG.Application.Services
             await _usuarioRepository.Alterar(usuario);
         }
 
-        private async Task<Usuario> ValidarAcesso(string apelido, string senha)
+        private async Task<Usuario> ValidarAcesso(string apelido, string senha, bool ehLoginAtivacao)
         {
             var usuario = await _usuarioRepository.ObterPorApelido(apelido)
                 ?? throw new UnauthorizedAccessException("Usuário ou senha inválida");
 
-            if (!usuario.Ativo)
-                throw new InvalidOperationException("Sua conta encontra-se bloqueada");
+            if (!ehLoginAtivacao)
+            {
+                if (!usuario.Ativo)
+                    throw new InvalidOperationException("Sua conta está bloqueada.");
+            }
 
             if (!usuario.ValidarSenha(senha))
             {
-                usuario.AdicionarTentativaLoginErrada();
+                if (usuario.Ativo)
+                {
+                    usuario.AdicionarTentativaLoginErrada();
+                    await _usuarioRepository.Alterar(usuario);
 
-                if (usuario.TentativasLogin >= 3) usuario.Desativar();
+                    if (usuario.TentativasLogin >= 3)
+                    {
+                        await _usuarioRepository.Desativar(usuario.Id);
+                        throw new UnauthorizedAccessException("Usuário bloqueado por excesso de tentativas.");
+                    }
 
-                await _usuarioRepository.Alterar(usuario);
+                    await _usuarioRepository.Alterar(usuario);
+                }
 
-                throw new UnauthorizedAccessException("Usuário ou senha inválida");
+                throw new UnauthorizedAccessException("Usuário ou senha inválida.");
             }
 
             if (usuario.TentativasLogin > 0)

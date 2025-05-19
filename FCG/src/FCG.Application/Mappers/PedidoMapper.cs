@@ -27,7 +27,8 @@ namespace FCG.Application.Mappers
                                 Apelido = pedido.Usuario.Apelido,
                                 Email = pedido.Usuario.Email,
                                 Role = pedido.Usuario.Role,
-                            },
+                                Status = pedido.Usuario.Ativo ? "Ativado" : "Desativado"
+                },
                 Jogo = new JogoResponseDto
                             {
                                 Id = pedido.Jogo.Id,

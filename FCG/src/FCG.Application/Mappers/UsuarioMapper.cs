@@ -7,8 +7,11 @@ namespace FCG.Application.Mappers
     {
         public static Usuario ToDomain(this UsuarioAdicionarDto usuarioDto)
         {
-            return Usuario.CriarAlterar(null, usuarioDto.Nome, usuarioDto.Apelido, 
-                                        usuarioDto.Email, usuarioDto.Senha);
+            var usuario = Usuario.CriarAlterar(null, usuarioDto.Nome, usuarioDto.Apelido,
+                                               usuarioDto.Email, usuarioDto.Senha);
+            usuario.GerarCodigoAtivacao();
+
+            return usuario;
         }
 
         public static Usuario ToDomain(this UsuarioAlterarDto usuarioDto)
@@ -26,6 +29,7 @@ namespace FCG.Application.Mappers
                 Apelido = usuario.Apelido,
                 Email = usuario.Email,
                 Role = usuario.Role,
+                Status = usuario.Ativo ? "Ativado" : "Desativado"
             };
         }
     }
