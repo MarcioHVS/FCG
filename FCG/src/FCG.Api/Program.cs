@@ -27,6 +27,8 @@ namespace FCG.Api
 
             _builder.AddSwaggerConfiguration();
 
+            _builder.AddAuthenticationConfiguration();
+
             _builder.RegisterDependencies();
         }
 

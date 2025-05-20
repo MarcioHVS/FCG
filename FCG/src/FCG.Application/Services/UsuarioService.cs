@@ -11,18 +11,20 @@ namespace FCG.Application.Services
     {
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IModeloEmail _email;
+        private readonly IJwtService _jwtService;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository, IModeloEmail email)
+        public UsuarioService(IUsuarioRepository usuarioRepository, IModeloEmail email, IJwtService jwtService)
         {
             _usuarioRepository = usuarioRepository;
             _email = email;
+            _jwtService = jwtService;
         }
 
         public async Task<string> Login(LoginDto login)
         {
             var usuario = await ValidarAcesso(login.Apelido, login.Senha, false);
 
-            return Convert.ToBase64String(usuario.Id.ToByteArray());
+            return _jwtService.GerarToken(usuario.ToDto());
         }
 
         public async Task<string> LoginAtivacao(LoginAtivacaoDto login)
@@ -36,7 +38,7 @@ namespace FCG.Application.Services
 
             await _email.Boas_Vindas(usuario.Email, usuario.Nome);
 
-            return Convert.ToBase64String(usuario.Id.ToByteArray());
+            return _jwtService.GerarToken(usuario.ToDto());
         }
 
         public async Task<UsuarioResponseDto> ObterUsuario(Guid usuarioId)

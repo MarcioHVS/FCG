@@ -1,5 +1,6 @@
 using FCG.Application.DTOs;
 using FCG.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.Api.Controllers
@@ -31,14 +32,14 @@ namespace FCG.Api.Controllers
             return CustomResponse(token);
         }
 
+        [Authorize(Roles = "Usuario,Administrador")]
         [HttpGet("ObterUsuario")]
-        public async Task<IActionResult> ObterUsuario(Guid usuarioId)
+        public async Task<IActionResult> ObterUsuario()
         {
-            var usuario = await _usuario.ObterUsuario(usuarioId);
-
-            return CustomResponse(usuario);
+            return CustomResponse(ObterIdUsuarioLogado());
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpGet("ObterUsuarioPorApelido")]
         public async Task<IActionResult> ObterUsuarioPorApelido(string apelido)
         {
@@ -47,6 +48,7 @@ namespace FCG.Api.Controllers
             return CustomResponse(usuario);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpGet("ObterUsuarioPorEmail")]
         public async Task<IActionResult> ObterUsuarioPorEmail(string email)
         {
@@ -55,6 +57,7 @@ namespace FCG.Api.Controllers
             return CustomResponse(usuario);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpGet("ObterUsuarios")]
         public async Task<IActionResult> ObterUsuarios()
         {
@@ -65,6 +68,7 @@ namespace FCG.Api.Controllers
                 : CustomResponse("Nenhum usuário encontrado", StatusCodes.Status404NotFound);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpGet("ObterUsuariosAtivos")]
         public async Task<IActionResult> ObterUsuariosAtivos()
         {
@@ -86,10 +90,14 @@ namespace FCG.Api.Controllers
             return CustomResponse("Usuário adicionado com sucesso. Você receberá um e-mail contendo o código de ativação da sua conta");
         }
 
+        [Authorize(Roles = "Usuario,Administrador")]
         [HttpPut("AlterarUsuario")]
         public async Task<IActionResult> AlterarUsuario(UsuarioAlterarDto usuario)
         {
             if (!ValidarModelo())
+                return CustomResponse();
+
+            if (!ValidarPermissao(usuario.Id))
                 return CustomResponse();
 
             await _usuario.AlterarUsuario(usuario);
@@ -97,33 +105,43 @@ namespace FCG.Api.Controllers
             return CustomResponse("Usuario alterado com sucesso");
         }
 
+        [Authorize(Roles = "Usuario,Administrador")]
         [HttpPut("AlterarSenha")]
-        public async Task<IActionResult> AlterarSenha(Guid usuarioId, string novaSenha)
+        public async Task<IActionResult> AlterarSenha(string novaSenha)
         {
             if (!ValidarModelo())
                 return CustomResponse();
 
-            await _usuario.AlterarSenha(usuarioId, novaSenha);
+            await _usuario.AlterarSenha(ObterIdUsuarioLogado(), novaSenha);
 
             return CustomResponse("Senha alterada com sucesso");
         }
 
+        [Authorize(Roles = "Usuario,Administrador")]
         [HttpPut("AtivarUsuario")]
         public async Task<IActionResult> AtivarUsuario(Guid usuarioId)
         {
+            if (!ValidarPermissao(usuarioId))
+                return CustomResponse();
+
             await _usuario.AtivarUsuario(usuarioId);
 
             return CustomResponse("Usuario ativado com sucesso");
         }
 
+        [Authorize(Roles = "Usuario,Administrador")]
         [HttpPut("DesativarUsuario")]
         public async Task<IActionResult> DesativarUsuario(Guid usuarioId)
         {
+            if (!ValidarPermissao(usuarioId))
+                return CustomResponse();
+
             await _usuario.DesativarUsuario(usuarioId);
 
             return CustomResponse("Usuario desativado com sucesso");
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPut("TornarUsuario")]
         public async Task<IActionResult> TornarUsuario(Guid usuarioId)
         {
@@ -132,6 +150,7 @@ namespace FCG.Api.Controllers
             return CustomResponse("Usuario alterado para o perfil de 'Usuario'");
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPut("TornarAdministrador")]
         public async Task<IActionResult> TornarAdministrador(Guid usuarioId)
         {

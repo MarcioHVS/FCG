@@ -1,6 +1,7 @@
 ﻿using FCG.Application.Interfaces;
 using FCG.Application.Services;
 using FCG.Application.Services.Email;
+using FCG.Application.Services.Jwt;
 using FCG.Domain.Interfaces;
 using FCG.Infrastructure.Contexts;
 using FCG.Infrastructure.Repositories;
@@ -12,6 +13,14 @@ namespace FCG.Api.Configurations
         public static WebApplicationBuilder RegisterDependencies(this WebApplicationBuilder builder)
         {
             var emailSettings = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>();
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
+            if (jwtSettings is null || string.IsNullOrEmpty(jwtSettings.SecretKey))
+                throw new InvalidOperationException("Configuração JWT inválida.");
+
+            builder.Services.AddSingleton(jwtSettings);
+
+            builder.Services.AddScoped<IJwtService, JwtService>();
 
             builder.Services.AddSingleton(emailSettings);
             builder.Services.AddScoped<IEmailService, EmailService>();

@@ -41,9 +41,7 @@ namespace FCG.Api.Controllers
 
         protected bool ValidarPermissao(Guid usuarioId)
         {
-            var usuarioLogadoId = Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var id) ? id : Guid.Empty;
-
-            if (User.IsInRole("Usuario") && usuarioId != usuarioLogadoId)
+            if (!EhAdministrador() && usuarioId != ObterIdUsuarioLogado())
             {
                 AdicionarErroProcessamento("Permissão negada: Você só pode acessar, criar ou alterar seus próprios dados.");
                 return false;
@@ -51,5 +49,11 @@ namespace FCG.Api.Controllers
 
             return true;
         }
+
+        protected bool EhAdministrador()
+            => User.IsInRole("Administrador");
+
+        protected Guid ObterIdUsuarioLogado()
+            => Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var id) ? id : Guid.Empty;
     }
 }
