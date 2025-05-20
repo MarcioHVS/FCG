@@ -50,7 +50,7 @@ namespace FCG.Infrastructure.Repositories
             var entidadeBD = await ObterEntidade(entidade.Id);
 
             if (entidadeBD is null)
-                throw new Exception("Registro não encontrado");
+                throw new KeyNotFoundException("Registro não encontrado");
 
             if (entidadeBD.Ativo)
                 entidade.Ativar();
@@ -66,7 +66,7 @@ namespace FCG.Infrastructure.Repositories
             var entidade = await ObterEntidade(id);
 
             if (entidade is null)
-                throw new Exception("Registro não encontrado");
+                throw new KeyNotFoundException("Registro não encontrado");
 
             _dbSet.Remove(entidade);
             await _context.Salvar();
@@ -77,7 +77,7 @@ namespace FCG.Infrastructure.Repositories
             var entidade = await ObterEntidade(id);
 
             if (entidade is null)
-                throw new Exception("Registro não encontrado");
+                throw new KeyNotFoundException("Registro não encontrado");
 
             entidade.Ativar();
 
@@ -90,7 +90,7 @@ namespace FCG.Infrastructure.Repositories
             var entidade = await ObterEntidade(id);
 
             if (entidade is null)
-                throw new Exception("Registro não encontrado");
+                throw new KeyNotFoundException("Registro não encontrado");
 
             entidade.Desativar();
 
@@ -103,7 +103,7 @@ namespace FCG.Infrastructure.Repositories
             var entidade = await _dbSet.FindAsync(id);
 
             if (entidade == null)
-                throw new InvalidOperationException($"{typeof(T).Name} com ID {id} não encontrado(a).");
+                throw new KeyNotFoundException($"{typeof(T).Name} com ID {id} não encontrado(a).");
 
             return entidade;
         }

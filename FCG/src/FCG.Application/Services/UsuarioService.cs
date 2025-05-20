@@ -2,6 +2,7 @@
 using FCG.Application.Interfaces;
 using FCG.Application.Mappers;
 using FCG.Domain.Entities;
+using FCG.Domain.Exceptions;
 using FCG.Domain.Interfaces;
 
 namespace FCG.Application.Services
@@ -29,7 +30,7 @@ namespace FCG.Application.Services
             var usuario = await ValidarAcesso(login.Apelido, login.Senha, true);
 
             if (!usuario.ValidarCodigoAtivacao(login.CodigoAtivacao))
-                throw new InvalidOperationException("Código de ativação inválido");
+                throw new OperacaoInvalidaException("Código de ativação inválido");
 
             await _usuarioRepository.Ativar(usuario.Id);
 

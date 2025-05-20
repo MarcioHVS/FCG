@@ -1,4 +1,5 @@
 ﻿using FCG.Application.Interfaces;
+using FCG.Domain.Exceptions;
 using System.Net;
 using System.Net.Mail;
 
@@ -37,7 +38,7 @@ namespace FCG.Application.Services.Email
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao enviar e-mail: {ex.Message}");
+                throw new OperacaoInvalidaException($"Erro ao enviar e-mail: {ex.Message}");
             }
         }
 

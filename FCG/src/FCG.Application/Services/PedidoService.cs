@@ -3,6 +3,7 @@ using FCG.Application.Interfaces;
 using FCG.Application.Mappers;
 using FCG.Domain.Entities;
 using FCG.Domain.Enums;
+using FCG.Domain.Exceptions;
 using FCG.Domain.Interfaces;
 
 namespace FCG.Application.Services
@@ -62,7 +63,7 @@ namespace FCG.Application.Services
         private async Task ProcessarPedido(Pedido pedido, string cupom, Func<Pedido, Task> operacao)
         {
             if (await _pedidoRepository.Existe(pedido))
-                throw new Exception("Já existe um pedido com as mesmas informações.");
+                throw new ConflitoException("Já existe um pedido com as mesmas informações.");
 
             await CalcularValorPedido(pedido, cupom);
             await operacao(pedido);

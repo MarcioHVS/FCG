@@ -1,4 +1,5 @@
-﻿using FCG.Infrastructure.Contexts;
+﻿using FCG.Api.Middleware;
+using FCG.Infrastructure.Contexts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -25,6 +26,7 @@ namespace FCG.Api.Configurations
 
         public static WebApplication UseApiConfiguration(this WebApplication app)
         {
+            app.UseMiddleware<TratamentoErrosMiddleware>();
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();

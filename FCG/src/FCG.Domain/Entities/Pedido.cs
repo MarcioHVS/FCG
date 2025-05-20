@@ -1,4 +1,5 @@
 ﻿using FCG.Domain.Enums;
+using FCG.Domain.Exceptions;
 
 namespace FCG.Domain.Entities
 {
@@ -30,7 +31,7 @@ namespace FCG.Domain.Entities
         {
             if (valor <= 0)
             {
-                throw new Exception("O valor do desconto deve ser maior que zero.");
+                throw new OperacaoInvalidaException("O valor do desconto deve ser maior que zero.");
             }
 
             switch (tipoDesconto)
@@ -42,13 +43,13 @@ namespace FCG.Domain.Entities
                 case TipoDesconto.Percentual:
                     if (desconto < 0 || desconto > 100)
                     {
-                        throw new Exception("O desconto percentual deve estar entre 0 e 100.");
+                        throw new OperacaoInvalidaException("O desconto percentual deve estar entre 0 e 100.");
                     }
                     Valor = Math.Max(0, valor - (valor * (desconto / 100)));
                     break;
 
                 default:
-                    throw new Exception("Tipo de desconto inválido.");
+                    throw new OperacaoInvalidaException("Tipo de desconto inválido.");
             }
         }
     }
