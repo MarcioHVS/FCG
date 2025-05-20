@@ -9,10 +9,12 @@ namespace FCG.Application.Services
     public class UsuarioService : IUsuarioService
     {
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IModeloEmail _email;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository)
+        public UsuarioService(IUsuarioRepository usuarioRepository, IModeloEmail email)
         {
             _usuarioRepository = usuarioRepository;
+            _email = email;
         }
 
         public async Task<string> Login(LoginDto login)
@@ -30,6 +32,8 @@ namespace FCG.Application.Services
                 throw new InvalidOperationException("Código de ativação inválido");
 
             await _usuarioRepository.Ativar(usuario.Id);
+
+            await _email.Boas_Vindas(usuario.Email, usuario.Nome);
 
             return Convert.ToBase64String(usuario.Id.ToByteArray());
         }
@@ -73,7 +77,12 @@ namespace FCG.Application.Services
         }
 
         public async Task AdicionarUsuario(UsuarioAdicionarDto usuarioDto)
-            => await _usuarioRepository.Adicionar(usuarioDto.ToDomain());
+        {
+            var usuario = usuarioDto.ToDomain();
+            await _usuarioRepository.Adicionar(usuario);
+
+            await _email.CodigoAtivacao(usuario.Email, usuario.Nome, usuario.CodigoAtivacao);
+        }
 
         public async Task AlterarUsuario(UsuarioAlterarDto usuarioDto)
             => await _usuarioRepository.Alterar(usuarioDto.ToDomain());

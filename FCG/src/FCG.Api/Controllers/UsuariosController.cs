@@ -83,7 +83,7 @@ namespace FCG.Api.Controllers
 
             await _usuario.AdicionarUsuario(usuario);
 
-            return CustomResponse("Usuário adicionado com sucesso");
+            return CustomResponse("Usuário adicionado com sucesso. Você receberá um e-mail contendo o código de ativação da sua conta");
         }
 
         [HttpPut("AlterarUsuario")]
