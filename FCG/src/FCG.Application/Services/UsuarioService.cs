@@ -41,6 +41,33 @@ namespace FCG.Application.Services
             return _jwtService.GerarToken(usuario.ToDto());
         }
 
+        public async Task<string> LoginNovaSenha(LoginNovaSenhaDto login)
+        {
+            var usuario = await _usuarioRepository.ObterPorApelido(login.Apelido)
+                ?? throw new OperacaoInvalidaException("Usuário ou Código inválido");
+
+            if(!usuario.ValidarCodigoValidacao(login.CodigoValidacao))
+                throw new OperacaoInvalidaException("Usuário ou Código inválido");
+
+            usuario.AlterarSenha(login.NovaSenha);
+            usuario.ZerarTentativasLoginErrada();
+            usuario.Ativar();
+            await _usuarioRepository.Alterar(usuario, true);
+
+            return _jwtService.GerarToken(usuario.ToDto());
+        }
+
+        public async Task EsqueciMinhaSenha(string email)
+        {
+            var usuario = await _usuarioRepository.ObterPorEmail(email)
+                ?? throw new OperacaoInvalidaException("E-mail não encontrado");
+
+            usuario.GerarCodigoValidacao();
+            await _usuarioRepository.Alterar(usuario);
+
+            await _email.EsqueciMinhaSenha(usuario.Email, usuario.Nome, usuario.CodigoValidacao);
+        }
+
         public async Task<UsuarioResponseDto> ObterUsuario(Guid usuarioId)
         {
             var usuario = await _usuarioRepository.ObterPorId(usuarioId)
@@ -128,7 +155,7 @@ namespace FCG.Application.Services
             if (!ehLoginAtivacao)
             {
                 if (!usuario.Ativo)
-                    throw new InvalidOperationException("Sua conta está bloqueada.");
+                    throw new OperacaoInvalidaException("Sua conta está bloqueada.");
             }
 
             if (!usuario.ValidarSenha(senha))

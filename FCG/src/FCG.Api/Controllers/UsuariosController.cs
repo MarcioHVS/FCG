@@ -32,6 +32,22 @@ namespace FCG.Api.Controllers
             return CustomResponse(token);
         }
 
+        [HttpPost("LoginNovaSenha")]
+        public async Task<IActionResult> LoginNovaSenha([FromBody] LoginNovaSenhaDto login)
+        {
+            var token = await _usuario.LoginNovaSenha(login);
+
+            return CustomResponse(token);
+        }
+
+        [HttpGet("EsqueciMinhaSenha")]
+        public async Task<IActionResult> EsqueciMinhaSenha(string email)
+        {
+            await _usuario.EsqueciMinhaSenha(email);
+
+            return CustomResponse("Solicitação realizada com sucesso. Você receberá um e-mail contendo o código para redefinir sua senha");
+        }
+
         [Authorize(Roles = "Usuario,Administrador")]
         [HttpGet("ObterUsuario")]
         public async Task<IActionResult> ObterUsuario()

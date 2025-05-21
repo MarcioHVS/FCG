@@ -51,7 +51,7 @@ namespace FCG.Application.Services
             => await ProcessarJogo(jogoDto.ToDomain(), _jogoRepository.Adicionar);
 
         public async Task AlterarJogo(JogoAlterarDto jogoDto)
-            => await ProcessarJogo(jogoDto.ToDomain(), _jogoRepository.Alterar);
+            => await ProcessarJogo(jogoDto.ToDomain(), jogo => _jogoRepository.Alterar(jogo));
 
         public async Task AtivarJogo(Guid jogoId)
             => await _jogoRepository.Ativar(jogoId);

@@ -48,6 +48,10 @@ namespace FCG.Infrastructure.Mappings
                 .IsRequired()
                 .HasColumnType("varchar(8)");
 
+            builder.Property(u => u.CodigoValidacao)
+                .IsRequired()
+                .HasColumnType("varchar(36)");
+
             builder.ToTable("Usuarios");
         }
     }

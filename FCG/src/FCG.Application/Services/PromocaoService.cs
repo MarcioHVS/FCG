@@ -49,7 +49,7 @@ namespace FCG.Application.Services
             => await ProcessarPromocao(promocaoDto.ToDomain(), _promocaoRepository.Adicionar);
 
         public async Task AlterarPromocao(PromocaoAlterarDto promocaoDto)
-            => await ProcessarPromocao(promocaoDto.ToDomain(), _promocaoRepository.Alterar);
+            => await ProcessarPromocao(promocaoDto.ToDomain(), promocao => _promocaoRepository.Alterar(promocao));
 
         public async Task AtivarPromocao(Guid promocaoId)
             => await _promocaoRepository.Ativar(promocaoId);

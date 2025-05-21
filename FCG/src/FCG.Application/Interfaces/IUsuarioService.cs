@@ -6,6 +6,8 @@ namespace FCG.Application.Interfaces
     {
         Task<string> Login(LoginDto login);
         Task<string> LoginAtivacao(LoginAtivacaoDto login);
+        Task<string> LoginNovaSenha(LoginNovaSenhaDto login);
+        Task EsqueciMinhaSenha(string email);
         Task<UsuarioResponseDto> ObterUsuario(Guid usuarioId);
         Task<UsuarioResponseDto> ObterUsuarioPorApelido(string apelido);
         Task<UsuarioResponseDto> ObterUsuarioPorEmail(string email);

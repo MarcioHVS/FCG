@@ -51,7 +51,7 @@ namespace FCG.Application.Services
             => await ProcessarPedido(pedidoDto.ToDomain(), pedidoDto.Cupom, _pedidoRepository.Adicionar);
 
         public async Task AlterarPedido(PedidoAlterarDto pedidoDto)
-            => await ProcessarPedido(pedidoDto.ToDomain(), pedidoDto.Cupom, _pedidoRepository.Alterar);
+            => await ProcessarPedido(pedidoDto.ToDomain(), pedidoDto.Cupom, pedido => _pedidoRepository.Alterar(pedido));
 
         public async Task AtivarPedido(Guid pedidoId)
             => await _pedidoRepository.Ativar(pedidoId);

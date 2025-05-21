@@ -8,7 +8,7 @@ namespace FCG.Domain.Interfaces
         Task<IEnumerable<Pedido>> ObterTodos();
         Task<IEnumerable<Pedido>> ObterTodosAtivos();
         Task Adicionar(Pedido pedido);
-        Task Alterar(Pedido pedido);
+        Task Alterar(Pedido pedido, bool AlterarAtivo = false);
         Task Remover(Guid id);
         Task Ativar(Guid id);
         Task Desativar(Guid id);

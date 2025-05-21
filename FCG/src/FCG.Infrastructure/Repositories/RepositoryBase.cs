@@ -45,17 +45,20 @@ namespace FCG.Infrastructure.Repositories
             await _context.Salvar();
         }
 
-        public async Task Alterar(T entidade)
+        public async Task Alterar(T entidade, bool AlterarAtivo = false)
         {
             var entidadeBD = await ObterEntidade(entidade.Id);
 
             if (entidadeBD is null)
                 throw new KeyNotFoundException("Registro não encontrado");
 
-            if (entidadeBD.Ativo)
-                entidade.Ativar();
-            else
-                entidade.Desativar();
+            if (!AlterarAtivo)
+            {
+                if (entidadeBD.Ativo)
+                    entidade.Ativar();
+                else
+                    entidade.Desativar();
+            }
 
             _dbSet.Update(entidade);
             await _context.Salvar();

@@ -1,6 +1,7 @@
 ﻿using FCG.Domain.Enums;
 using FCG.Domain.Exceptions;
 using Isopoh.Cryptography.Argon2;
+using System.Drawing;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
@@ -16,6 +17,7 @@ namespace FCG.Domain.Entities
         public Role Role { get; private set; }
         public int TentativasLogin { get; private set; }
         public string CodigoAtivacao { get; private set; }
+        public string CodigoValidacao { get; private set; }
 
         public ICollection<Pedido> Pedidos { get; set; }
 
@@ -111,6 +113,29 @@ namespace FCG.Domain.Entities
                 return false;
 
             if (CodigoAtivacao == codigo)
+            {
+                Ativar();
+                return true;
+            }
+
+            Desativar();
+            return false;
+        }
+
+        public void GerarCodigoValidacao()
+        {
+            CodigoValidacao = Guid.NewGuid().ToString().ToUpper();
+        }
+
+        public bool ValidarCodigoValidacao(string codigo)
+        {
+            if (string.IsNullOrWhiteSpace(codigo) || !Guid.TryParse(codigo, out _))
+            {
+                Desativar();
+                return false;
+            }
+
+            if (CodigoValidacao == codigo)
             {
                 Ativar();
                 return true;

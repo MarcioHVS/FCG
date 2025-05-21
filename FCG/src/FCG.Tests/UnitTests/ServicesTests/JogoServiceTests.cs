@@ -255,13 +255,13 @@ namespace FCG.Tests.UnitTests.ServicesTests
                 Valor = 79.99m
             };
 
-            _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>())).Returns(Task.CompletedTask);
+            _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>(), It.IsAny<bool>())).Returns(Task.CompletedTask);
 
             // Act
             await _jogoService.AlterarJogo(jogoDto);
 
             // Assert
-            _jogoRepositoryMock.Verify(repo => repo.Alterar(It.IsAny<Jogo>()), Times.Once);
+            _jogoRepositoryMock.Verify(repo => repo.Alterar(It.IsAny<Jogo>(), It.IsAny<bool>()), Times.Once);
         }
 
         [Fact]
@@ -277,7 +277,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
                 Valor = 79.99m
             };
 
-            _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>())).ThrowsAsync(new Exception("Erro ao alterar jogo"));
+            _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>(), It.IsAny<bool>()))
+                .ThrowsAsync(new Exception("Erro ao alterar jogo"));
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _jogoService.AlterarJogo(jogoDto));
@@ -289,7 +290,8 @@ namespace FCG.Tests.UnitTests.ServicesTests
         {
             // Arrange
             var jogoDto = new JogoAlterarDto { Id = Guid.NewGuid(), Titulo = "Super Mario Bros", Descricao = "Uma jornada para salvar a Princesa Peach", Genero = Genero.Plataforma, Valor = 79.99m };
-            _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>())).ThrowsAsync(new KeyNotFoundException("Jogo não encontrado"));
+            _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>(), It.IsAny<bool>()))
+                .ThrowsAsync(new KeyNotFoundException("Jogo não encontrado"));
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _jogoService.AlterarJogo(jogoDto));
@@ -314,13 +316,14 @@ namespace FCG.Tests.UnitTests.ServicesTests
 
             _jogoRepositoryMock.Setup(repo => repo.ObterPorId(jogoDto.Id)).ReturnsAsync(jogoOriginal);
 
-            _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>()))
-                .Callback<Jogo>(j =>
+            _jogoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Jogo>(), It.IsAny<bool>()))
+                .Callback<Jogo, bool>((j, _) =>
                 {
-                    Jogo.CriarAlterar(jogoOriginal.Id, j.Titulo, j.Descricao, j.Genero, j.Valor);
-                    _jogoRepositoryMock.Setup(repo => repo.ObterPorId(j.Id)).ReturnsAsync(j);
+                    jogoOriginal = Jogo.CriarAlterar(jogoOriginal.Id, j.Titulo, j.Descricao, j.Genero, j.Valor);
                 })
                 .Returns(Task.CompletedTask);
+
+            _jogoRepositoryMock.Setup(repo => repo.ObterPorId(jogoDto.Id)).ReturnsAsync(() => jogoOriginal);
 
             // Act
             await _jogoService.AlterarJogo(jogoDto);

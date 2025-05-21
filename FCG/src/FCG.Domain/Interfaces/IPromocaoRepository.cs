@@ -8,7 +8,7 @@ namespace FCG.Domain.Interfaces
         Task<IEnumerable<Promocao>> ObterTodos();
         Task<IEnumerable<Promocao>> ObterTodosAtivos();
         Task Adicionar(Promocao promocao);
-        Task Alterar(Promocao promocao);
+        Task Alterar(Promocao promocao, bool AlterarAtivo = false);
         Task Remover(Guid id);
         Task Ativar(Guid id);
         Task Desativar(Guid id);

@@ -320,13 +320,13 @@ namespace FCG.Tests.UnitTests.ServicesTests
                 DataValidade = DateTime.Now.AddDays(20)
             };
 
-            _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>())).Returns(Task.CompletedTask);
+            _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>(), It.IsAny<bool>())).Returns(Task.CompletedTask);
 
             // Act
             await _promocaoService.AlterarPromocao(promocaoDto);
 
             // Assert
-            _promocaoRepositoryMock.Verify(repo => repo.Alterar(It.IsAny<Promocao>()), Times.Once);
+            _promocaoRepositoryMock.Verify(repo => repo.Alterar(It.IsAny<Promocao>(), It.IsAny<bool>()), Times.Once);
         }
 
         [Fact]
@@ -343,7 +343,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
                 DataValidade = DateTime.Now.AddDays(20)
             };
 
-            _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>())).ThrowsAsync(new Exception("Erro ao alterar promoção"));
+            _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>(), It.IsAny<bool>())).ThrowsAsync(new Exception("Erro ao alterar promoção"));
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() => _promocaoService.AlterarPromocao(promocaoDto));
@@ -364,7 +364,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
                 DataValidade = DateTime.Now.AddDays(20)
             };
 
-            _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>())).ThrowsAsync(new KeyNotFoundException("Promoção não encontrada"));
+            _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>(), It.IsAny<bool>())).ThrowsAsync(new KeyNotFoundException("Promoção não encontrada"));
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _promocaoService.AlterarPromocao(promocaoDto));
@@ -375,7 +375,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
         public async Task AlterarPromocao_AlteracaoParcial_DeveAtualizarTodosCampos()
         {
             // Arrange
-            var promocaoOriginal = Promocao.CriarAlterar(null, "CUPOM_ANTIGO", "Desconto antigo", TipoDesconto.Moeda, 30m, DateTime.Now.AddDays(20));
+            var promocaoOriginal = Promocao.CriarAlterar(null, "CUPOM_ANTIGO", "Desconto antigo", TipoDesconto.Moeda, 30m, DateTime.UtcNow.AddDays(20));
             promocaoOriginal.Ativar();
 
             var promocaoDto = new PromocaoAlterarDto
@@ -385,18 +385,19 @@ namespace FCG.Tests.UnitTests.ServicesTests
                 Descricao = "Desconto novo",
                 TipoDesconto = TipoDesconto.Percentual,
                 ValorDesconto = 10m,
-                DataValidade = DateTime.Now.AddDays(10)
+                DataValidade = DateTime.UtcNow.AddDays(10) // Agora em UTC
             };
 
             _promocaoRepositoryMock.Setup(repo => repo.ObterPorId(promocaoDto.Id)).ReturnsAsync(promocaoOriginal);
 
-            _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>()))
-                .Callback<Promocao>(p =>
+            _promocaoRepositoryMock.Setup(repo => repo.Alterar(It.IsAny<Promocao>(), It.IsAny<bool>()))
+                .Callback<Promocao, bool>((p, _) =>
                 {
-                    Promocao.CriarAlterar(promocaoOriginal.Id, p.Cupom, p.Descricao, p.TipoDesconto, p.ValorDesconto, p.DataValidade);
-                    _promocaoRepositoryMock.Setup(repo => repo.ObterPorId(p.Id)).ReturnsAsync(p);
+                    promocaoOriginal = Promocao.CriarAlterar(promocaoOriginal.Id, p.Cupom, p.Descricao, p.TipoDesconto, p.ValorDesconto, p.DataValidade);
                 })
                 .Returns(Task.CompletedTask);
+
+            _promocaoRepositoryMock.Setup(repo => repo.ObterPorId(promocaoDto.Id)).ReturnsAsync(() => promocaoOriginal);
 
             // Act
             await _promocaoService.AlterarPromocao(promocaoDto);

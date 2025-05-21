@@ -45,6 +45,10 @@ namespace FCG.Infrastructure.Contexts
                 var codigoAtivacaoProperty = entry.Property(nameof(Usuario.CodigoAtivacao));
                 if (entry.State == EntityState.Modified && codigoAtivacaoProperty.CurrentValue is null)
                     codigoAtivacaoProperty.IsModified = false;
+
+                var codigoValidacaoProperty = entry.Property(nameof(Usuario.CodigoValidacao));
+                if (entry.State == EntityState.Modified && codigoValidacaoProperty.CurrentValue is null)
+                    codigoValidacaoProperty.IsModified = false;
             }
 
             var salvo = await base.SaveChangesAsync(cancellationToken) > 0;
