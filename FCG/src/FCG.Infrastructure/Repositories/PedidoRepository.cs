@@ -29,6 +29,14 @@ namespace FCG.Infrastructure.Repositories
                 .AnyAsync(p => p.Id != pedido.Id && p.UsuarioId == pedido.UsuarioId && p.JogoId == pedido.JogoId);
         }
 
+        public override async Task<IEnumerable<Pedido>> ObterTodos()
+        {
+            return await _context.Pedidos.AsNoTracking()
+                .Include(p => p.Usuario)
+                .Include(p => p.Jogo)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Pedido>> ObterTodosPorUsuario(Guid usuarioId)
         {
             return await _context.Pedidos.AsNoTracking()
