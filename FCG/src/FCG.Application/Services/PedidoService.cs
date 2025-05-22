@@ -40,9 +40,7 @@ namespace FCG.Application.Services
 
         public async Task<IEnumerable<PedidoResponseDto>> ObterPedidosAtivos(Guid usuarioId)
         {
-            var pedidos = usuarioId == Guid.Empty
-                                     ? await _pedidoRepository.ObterTodosAtivos()
-                                     : await _pedidoRepository.ObterTodosPorUsuario(usuarioId);
+            var pedidos = await _pedidoRepository.ObterTodosPorUsuario(usuarioId);
 
             return pedidos.Select(p => p.ToDto());
         }

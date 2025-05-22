@@ -29,9 +29,9 @@ namespace FCG.Domain.Entities
 
         public void CalcularValor(decimal valor, TipoDesconto tipoDesconto, decimal desconto)
         {
-            if (valor <= 0)
+            if (valor < 0)
             {
-                throw new OperacaoInvalidaException("O valor do desconto deve ser maior que zero.");
+                throw new OperacaoInvalidaException("O valor do jogo deve ser maior ou igual a zero.");
             }
 
             switch (tipoDesconto)
