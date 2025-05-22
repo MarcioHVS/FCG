@@ -73,6 +73,8 @@ namespace FCG.Application.Services
             if (!jogo.Ativo)
                 throw new OperacaoInvalidaException("Este jogo não está disponível para compra.");
 
+            var teste = await _validationService.ObterPromocaoPorCupom(cupom);
+
             var promocao = string.IsNullOrEmpty(cupom) ? null : await _validationService.ObterPromocaoPorCupom(cupom);
 
             pedido.CalcularValor(jogo.Valor, 

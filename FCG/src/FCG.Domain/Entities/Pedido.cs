@@ -37,7 +37,7 @@ namespace FCG.Domain.Entities
             switch (tipoDesconto)
             {
                 case TipoDesconto.Moeda:
-                    Valor = Math.Max(0, valor - desconto);
+                    Valor = desconto >= valor ? 0 : valor - desconto;
                     break;
 
                 case TipoDesconto.Percentual:
@@ -45,7 +45,9 @@ namespace FCG.Domain.Entities
                     {
                         throw new OperacaoInvalidaException("O desconto percentual deve estar entre 0 e 100.");
                     }
-                    Valor = Math.Max(0, valor - (valor * (desconto / 100)));
+
+                    var valorComDesconto = valor - (valor * (desconto / 100));
+                    Valor = valorComDesconto <= 0 ? 0 : valorComDesconto;
                     break;
 
                 default:
