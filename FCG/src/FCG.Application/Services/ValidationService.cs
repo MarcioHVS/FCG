@@ -18,19 +18,19 @@ namespace FCG.Application.Services
             _promocaoRepository = promocaoRepository;
         }
 
-        public async Task<Jogo> ObterJogoValido(Guid jogoId)
+        public async Task<Jogo> ObterJogoPorId(Guid jogoId)
         {
             return await _jogoRepository.ObterPorId(jogoId)
                 ?? throw new KeyNotFoundException("Jogo não encontrado");
         }
 
-        public async Task<Usuario> ObterUsuarioValido(Guid usuarioId)
+        public async Task<Usuario> ObterUsuarioPorId(Guid usuarioId)
         {
             return await _usuarioRepository.ObterPorId(usuarioId)
                 ?? throw new KeyNotFoundException("Usuário não encontrado");
         }
 
-        public async Task<Promocao?> ObterPromocaoValida(string cupom)
+        public async Task<Promocao?> ObterPromocaoPorCupom(string cupom)
         {
             var promocao = await _promocaoRepository.ObterPorCupom(cupom);
             return promocao?.Ativo == true ? promocao : null;

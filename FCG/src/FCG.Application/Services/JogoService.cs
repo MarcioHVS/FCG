@@ -4,7 +4,6 @@ using FCG.Application.Mappers;
 using FCG.Domain.Entities;
 using FCG.Domain.Enums;
 using FCG.Domain.Interfaces;
-using System.Drawing;
 
 namespace FCG.Application.Services
 {

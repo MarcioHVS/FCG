@@ -26,6 +26,7 @@ namespace FCG.Application.Mappers
                 Descricao = jogo.Descricao,
                 Genero = jogo.Genero,
                 Valor = jogo.Valor,
+                Status = jogo.Ativo ? "Ativado" : "Desativado"
             };
         }
     }

@@ -9,5 +9,6 @@ namespace FCG.Application.DTOs
         public required string Descricao { get; set; }
         public Genero Genero { get; set; }
         public decimal Valor { get; set; }
+        public required string Status { get; set; }
     }
 }

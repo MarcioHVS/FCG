@@ -2,6 +2,7 @@
 using FCG.Application.Interfaces;
 using FCG.Application.Mappers;
 using FCG.Domain.Entities;
+using FCG.Domain.Enums;
 using FCG.Domain.Interfaces;
 
 namespace FCG.Application.Services
@@ -68,6 +69,10 @@ namespace FCG.Application.Services
         private static void ValidarPromocao<T>(T promocaoDto) where T : class
         {
             dynamic dto = promocaoDto;
+
+            if (!Enum.IsDefined(typeof(TipoDesconto), dto.TipoDesconto))
+                throw new InvalidOperationException("Informe um Tipo de Desconto válido.");
+
             var dataLocal = TimeZoneInfo.ConvertTimeFromUtc
                 (dto.DataValidade, TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo"));
 

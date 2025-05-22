@@ -71,9 +71,11 @@ namespace FCG.Application.Services
 
         private async Task CalcularValorPedido(Pedido pedido, string cupom)
         {
-            var jogo = await _validationService.ObterJogoValido(pedido.JogoId);
-            var usuario = await _validationService.ObterUsuarioValido(pedido.UsuarioId);
-            var promocao = string.IsNullOrEmpty(cupom) ? null : await _validationService.ObterPromocaoValida(cupom);
+            var jogo = await _validationService.ObterJogoPorId(pedido.JogoId);
+            if (!jogo.Ativo)
+                throw new OperacaoInvalidaException("Este jogo não está disponível para compra.");
+
+            var promocao = string.IsNullOrEmpty(cupom) ? null : await _validationService.ObterPromocaoPorCupom(cupom);
 
             pedido.CalcularValor(jogo.Valor, 
                                  promocao?.TipoDesconto ?? TipoDesconto.Moeda, 

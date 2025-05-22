@@ -40,12 +40,36 @@ namespace FCG.Api.Controllers
             return CustomResponse(token);
         }
 
-        [HttpGet("EsqueciMinhaSenha")]
-        public async Task<IActionResult> EsqueciMinhaSenha(string email)
+        [HttpGet("SolicitarNovaSenha")]
+        public async Task<IActionResult> SolicitarNovaSenha(string email)
         {
-            await _usuario.EsqueciMinhaSenha(email);
+            await _usuario.SolicitarNovaSenha(email);
 
-            return CustomResponse("Solicitação realizada com sucesso. Você receberá um e-mail contendo o código para redefinir sua senha");
+            return CustomResponse("Solicitação realizada com sucesso. Você receberá um e-mail contendo o código de validação para redefinir sua senha");
+        }
+
+        [HttpGet("SolicitarReativacao")]
+        public async Task<IActionResult> SolicitarReativacao(string email)
+        {
+            await _usuario.SolicitarReativacao(email);
+
+            return CustomResponse("Solicitação realizada com sucesso. Você receberá um e-mail contendo o código de reativação da sua senha");
+        }
+
+        [HttpGet("ReenviarCodigoAtivacao")]
+        public async Task<IActionResult> ReenviarCodigoAtivacao(string email)
+        {
+            await _usuario.ReenviarCodigoAtivacao(email);
+
+            return CustomResponse("Reenvio do Código de Ativação realizado com sucesso.");
+        }
+
+        [HttpGet("ReenviarCodigoValidacao")]
+        public async Task<IActionResult> ReenviarCodigoValidacao(string email)
+        {
+            await _usuario.ReenviarCodigoValidacao(email);
+
+            return CustomResponse("Reenvio do Código de Validaação realizado com sucesso.");
         }
 
         [Authorize(Roles = "Usuario,Administrador")]

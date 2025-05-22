@@ -1,5 +1,6 @@
 using FCG.Application.DTOs;
 using FCG.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.Api.Controllers
@@ -51,6 +52,7 @@ namespace FCG.Api.Controllers
                 : CustomResponse("Nenhum jogo encontrado", StatusCodes.Status404NotFound);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPost("AdicionarJogo")]
         public async Task<IActionResult> AdicionarJogo(JogoAdicionarDto jogo)
         {
@@ -62,6 +64,7 @@ namespace FCG.Api.Controllers
             return CustomResponse("Jogo adicionado com sucesso");
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPut("AlterarJogo")]
         public async Task<IActionResult> AlterarJogo(JogoAlterarDto jogo)
         {
@@ -73,6 +76,7 @@ namespace FCG.Api.Controllers
             return CustomResponse("Jogo alterado com sucesso");
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPut("AtivarJogo")]
         public async Task<IActionResult> AtivarJogo(Guid jogoId)
         {
@@ -81,6 +85,7 @@ namespace FCG.Api.Controllers
             return CustomResponse("Jogo ativado com sucesso");
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPut("DesativarJogo")]
         public async Task<IActionResult> DesativarJogo(Guid jogoId)
         {

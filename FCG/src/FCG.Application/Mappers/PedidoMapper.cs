@@ -36,7 +36,8 @@ namespace FCG.Application.Mappers
                                 Descricao = pedido.Jogo.Descricao,
                                 Genero = pedido.Jogo.Genero,
                                 Valor = pedido.Valor,
-                            }
+                                Status = pedido.Jogo.Ativo ? "Ativado" : "Desativado"
+                }
             };
         }
     }

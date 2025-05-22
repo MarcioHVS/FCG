@@ -1,7 +1,6 @@
 ﻿using FCG.Domain.Enums;
 using FCG.Domain.Exceptions;
 using Isopoh.Cryptography.Argon2;
-using System.Drawing;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
@@ -18,10 +17,9 @@ namespace FCG.Domain.Entities
         public int TentativasLogin { get; private set; }
         public string CodigoAtivacao { get; private set; }
         public string CodigoValidacao { get; private set; }
-
         public ICollection<Pedido> Pedidos { get; set; }
 
-        //EF
+        // EF
         protected Usuario() { }
 
         private Usuario(Guid id, string nome, string apelido, string email, string senhaHash, string salt)
@@ -32,24 +30,27 @@ namespace FCG.Domain.Entities
             Email = email;
             Senha = senhaHash;
             Salt = salt;
+            CodigoAtivacao = string.Empty;
+            CodigoValidacao = string.Empty;
         }
 
-        public void AdicionarTentativaLoginErrada() => TentativasLogin ++;
+        public void AdicionarTentativaLoginErrada() => TentativasLogin++;
         public void ZerarTentativasLoginErrada() => TentativasLogin = 0;
+        public void LimparCodigoAtivacao() => CodigoAtivacao = string.Empty;
+        public void LimparCodigoValidacao() => CodigoValidacao = string.Empty;
         public void TornarAdministrador() => Role = Role.Administrador;
         public void TornarUsuario() => Role = Role.Usuario;
 
         public static Usuario CriarAlterar(Guid? id, string nome, string apelido, string email, string senha)
         {
-            if (!EmailValido(email))
+            if (!ValidarEmail(email))
                 throw new OperacaoInvalidaException("Endereço de e-mail inválido.");
 
-            var senhaHash = string.Empty;
-            var salt = string.Empty;
+            string senhaHash = string.Empty, salt = string.Empty;
 
             if (id == null)
             {
-                if (!SenhaForte(senha))
+                if (!ValidarSenhaForte(senha))
                     throw new OperacaoInvalidaException("A senha deve conter pelo menos uma letra, um número e um caractere especial.");
 
                 (senhaHash, salt) = GerarHashSenha(senha);
@@ -58,10 +59,28 @@ namespace FCG.Domain.Entities
             return new Usuario(id ?? Guid.NewGuid(), nome, apelido, email, senhaHash, salt);
         }
 
-        public static bool EmailValido(string email)
+        public void AlterarSenha(string novaSenha)
         {
-            if (string.IsNullOrWhiteSpace(email))
-                return false;
+            if (!ValidarSenhaForte(novaSenha))
+                throw new OperacaoInvalidaException("A senha deve conter pelo menos uma letra, um número e um caractere especial.");
+
+            (Senha, Salt) = GerarHashSenha(novaSenha);
+        }
+
+        public bool ValidarSenha(string senha) => Argon2.Verify(Senha, senha + Salt);
+
+        public void GerarCodigoAtivacao() => CodigoAtivacao = GerarCodigoAleatorio(8);
+
+        public void GerarCodigoValidacao() => CodigoValidacao = Guid.NewGuid().ToString().ToUpper();
+
+        public bool ValidarCodigoAtivacao(string codigo) => ValidarCodigo(codigo, CodigoAtivacao);
+
+        public bool ValidarCodigoValidacao(string codigo) => ValidarCodigo(codigo, CodigoValidacao, true);
+
+        #region Métodos Privados
+        private static bool ValidarEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return false;
 
             try
             {
@@ -74,10 +93,9 @@ namespace FCG.Domain.Entities
             }
         }
 
-        public static bool SenhaForte(string senha)
+        private static bool ValidarSenhaForte(string senha)
         {
-            if (string.IsNullOrWhiteSpace(senha))
-                return false;
+            if (string.IsNullOrWhiteSpace(senha)) return false;
 
             bool temLetra = Regex.IsMatch(senha, @"[a-zA-Z]");
             bool temNumero = Regex.IsMatch(senha, @"\d");
@@ -86,63 +104,28 @@ namespace FCG.Domain.Entities
             return temLetra && temNumero && temEspecial;
         }
 
-        public void AlterarSenha(string novaSenha)
+        private bool ValidarCodigo(string codigo, string codigoReferencia, bool verificarFormatoGuid = false)
         {
-            var (novoHash, novoSalt) = GerarHashSenha(novaSenha);
-            Senha = novoHash;
-            Salt = novoSalt;
+            if (string.IsNullOrWhiteSpace(codigo) || (verificarFormatoGuid && !Guid.TryParse(codigo, out _)))
+                return false;
+
+            if (codigoReferencia == codigo)
+            {
+                Ativar();
+                return true;
+            }
+
+            Desativar();
+            return false;
         }
 
-        public bool ValidarSenha(string senha)
-        {
-            return Argon2.Verify(Senha, senha + Salt);
-        }
-
-        public void GerarCodigoAtivacao()
+        private static string GerarCodigoAleatorio(int tamanho)
         {
             const string caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             var random = new Random();
 
-            CodigoAtivacao = new string(Enumerable.Repeat(caracteres, 8)
-                                        .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-
-        public bool ValidarCodigoAtivacao(string codigo)
-        {
-            if (string.IsNullOrWhiteSpace(codigo))
-                return false;
-
-            if (CodigoAtivacao == codigo)
-            {
-                Ativar();
-                return true;
-            }
-
-            Desativar();
-            return false;
-        }
-
-        public void GerarCodigoValidacao()
-        {
-            CodigoValidacao = Guid.NewGuid().ToString().ToUpper();
-        }
-
-        public bool ValidarCodigoValidacao(string codigo)
-        {
-            if (string.IsNullOrWhiteSpace(codigo) || !Guid.TryParse(codigo, out _))
-            {
-                Desativar();
-                return false;
-            }
-
-            if (CodigoValidacao == codigo)
-            {
-                Ativar();
-                return true;
-            }
-
-            Desativar();
-            return false;
+            return new string(Enumerable.Repeat(caracteres, tamanho)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
         private static (string hash, string salt) GerarHashSenha(string senha)
@@ -151,5 +134,6 @@ namespace FCG.Domain.Entities
             var hash = Argon2.Hash(senha + salt);
             return (hash, salt);
         }
+        #endregion
     }
 }

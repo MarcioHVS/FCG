@@ -34,9 +34,10 @@ namespace FCG.Application.Services
             if (!usuario.ValidarCodigoAtivacao(login.CodigoAtivacao))
                 throw new OperacaoInvalidaException("Código de ativação inválido");
 
-            await _usuarioRepository.Ativar(usuario.Id);
-
-            await _email.Boas_Vindas(usuario.Email, usuario.Nome);
+            usuario.ZerarTentativasLoginErrada();
+            usuario.LimparCodigoAtivacao();
+            usuario.Ativar();
+            await _usuarioRepository.Alterar(usuario, true);
 
             return _jwtService.GerarToken(usuario.ToDto());
         }
@@ -51,13 +52,14 @@ namespace FCG.Application.Services
 
             usuario.AlterarSenha(login.NovaSenha);
             usuario.ZerarTentativasLoginErrada();
+            usuario.LimparCodigoValidacao();
             usuario.Ativar();
             await _usuarioRepository.Alterar(usuario, true);
 
             return _jwtService.GerarToken(usuario.ToDto());
         }
 
-        public async Task EsqueciMinhaSenha(string email)
+        public async Task SolicitarNovaSenha(string email)
         {
             var usuario = await _usuarioRepository.ObterPorEmail(email)
                 ?? throw new OperacaoInvalidaException("E-mail não encontrado");
@@ -65,7 +67,43 @@ namespace FCG.Application.Services
             usuario.GerarCodigoValidacao();
             await _usuarioRepository.Alterar(usuario);
 
-            await _email.EsqueciMinhaSenha(usuario.Email, usuario.Nome, usuario.CodigoValidacao);
+            await _email.SolicitacaoNovaSenha(usuario.Email, usuario.Nome, usuario.CodigoValidacao);
+        }
+
+        public async Task SolicitarReativacao(string email)
+        {
+            var usuario = await _usuarioRepository.ObterPorEmail(email)
+                ?? throw new OperacaoInvalidaException("E-mail não encontrado");
+
+            if(usuario.Ativo)
+                throw new OperacaoInvalidaException("Sua conta já se encontra ativa");
+
+            usuario.GerarCodigoAtivacao();
+            await _usuarioRepository.Alterar(usuario);
+
+            await _email.CodigoAtivacao(usuario.Email, usuario.Nome, usuario.CodigoAtivacao);
+        }
+
+        public async Task ReenviarCodigoAtivacao(string email)
+        {
+            var usuario = await _usuarioRepository.ObterPorEmail(email)
+                ?? throw new KeyNotFoundException("O e-mail informado não foi encontrado");
+
+            if (string.IsNullOrEmpty(usuario.CodigoAtivacao))
+                throw new KeyNotFoundException("Você não tem um código de ativação");
+
+            await _email.CodigoAtivacao(usuario.Email, usuario.Nome, usuario.CodigoAtivacao);
+        }
+
+        public async Task ReenviarCodigoValidacao(string email)
+        {
+            var usuario = await _usuarioRepository.ObterPorEmail(email)
+                ?? throw new KeyNotFoundException("O e-mail informado não foi encontrado");
+
+            if (string.IsNullOrEmpty(usuario.CodigoValidacao))
+                throw new KeyNotFoundException("Você não tem um código de validação");
+
+            await _email.SolicitacaoNovaSenha(usuario.Email, usuario.Nome, usuario.CodigoValidacao);
         }
 
         public async Task<UsuarioResponseDto> ObterUsuario(Guid usuarioId)
@@ -155,7 +193,7 @@ namespace FCG.Application.Services
             if (!ehLoginAtivacao)
             {
                 if (!usuario.Ativo)
-                    throw new OperacaoInvalidaException("Sua conta está bloqueada.");
+                    throw new OperacaoInvalidaException("Sua conta está bloqueada. Solicite a reativação da conta ou redefinir sua senha.");
             }
 
             if (!usuario.ValidarSenha(senha))
@@ -163,15 +201,14 @@ namespace FCG.Application.Services
                 if (usuario.Ativo)
                 {
                     usuario.AdicionarTentativaLoginErrada();
-                    await _usuarioRepository.Alterar(usuario);
+                    await _usuarioRepository.Alterar(usuario, true);
 
                     if (usuario.TentativasLogin >= 3)
                     {
                         await _usuarioRepository.Desativar(usuario.Id);
-                        throw new UnauthorizedAccessException("Usuário bloqueado por excesso de tentativas.");
-                    }
 
-                    await _usuarioRepository.Alterar(usuario);
+                        throw new UnauthorizedAccessException("Usuário bloqueado por excesso de tentativas. Solicite a reativação da conta ou redefinir sua senha.");
+                    }
                 }
 
                 throw new UnauthorizedAccessException("Usuário ou senha inválida.");

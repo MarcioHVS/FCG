@@ -32,6 +32,7 @@ namespace FCG.Api.Controllers
             return CustomResponse(promocao);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpGet("ObterPromocoes")]
         public async Task<IActionResult> ObterPromocoes()
         {
@@ -42,6 +43,7 @@ namespace FCG.Api.Controllers
                 : CustomResponse("Nenhuma promoção encontrada", StatusCodes.Status404NotFound);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpGet("ObterPromocoesAtivas")]
         public async Task<IActionResult> ObterPromocoesAtivas()
         {
@@ -52,6 +54,7 @@ namespace FCG.Api.Controllers
                 : CustomResponse("Nenhuma promoção encontrada", StatusCodes.Status404NotFound);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPost("AdicionarPromocao")]
         public async Task<IActionResult> AdicionarPromocao(PromocaoAdicionarDto promocao)
         {
@@ -63,6 +66,7 @@ namespace FCG.Api.Controllers
             return CustomResponse("Promoção adicionada com sucesso");
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPut("AlterarPromocao")]
         public async Task<IActionResult> AlterarPromocao(PromocaoAlterarDto promocao)
         {
@@ -74,6 +78,7 @@ namespace FCG.Api.Controllers
             return CustomResponse("Promoção alterada com sucesso");
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPut("AtivarPromocao")]
         public async Task<IActionResult> AtivarPromocao(Guid promocaoId)
         {
@@ -82,6 +87,7 @@ namespace FCG.Api.Controllers
             return CustomResponse("Promoção ativada com sucesso");
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPut("DesativarPromocao")]
         public async Task<IActionResult> DesativarPromocao(Guid promocaoId)
         {
