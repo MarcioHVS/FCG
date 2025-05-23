@@ -8,6 +8,8 @@ namespace FCG.Api.Configurations
         {
             builder.Services.AddSwaggerGen(c =>
             {
+                c.EnableAnnotations();
+
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "API - FIAP Cloud Games",
