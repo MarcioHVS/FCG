@@ -21,7 +21,7 @@ namespace FCG.Infrastructure.Contexts
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         }
 
-        public async Task<bool> Salvar(CancellationToken cancellationToken = default)
+        public async Task Salvar(CancellationToken cancellationToken = default)
         {
             foreach (var entry in ChangeTracker.Entries<EntityBase>())
             {
@@ -55,8 +55,6 @@ namespace FCG.Infrastructure.Contexts
 
             if (!salvo)
                 throw new DbUpdateException("Houve um erro ao tentar persistir os dados");
-
-            return salvo;
         }
     }
 }
