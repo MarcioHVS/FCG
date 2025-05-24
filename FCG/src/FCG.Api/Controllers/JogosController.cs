@@ -18,7 +18,8 @@ namespace FCG.Api.Controllers
         }
 
         [HttpGet("ObterJogo")]
-        [SwaggerOperation(Summary = "Obtém um jogo pelo ID", Description = "Retorna um jogo específico com base no ID informado.")]
+        [SwaggerOperation(Summary = "Obtém um jogo pelo ID", 
+                          Description = "Retorna um jogo específico com base no ID informado.")]
         public async Task<IActionResult> ObterJogo(Guid jogoId)
         {
             var jogo = await _jogo.ObterJogo(jogoId);
@@ -26,7 +27,8 @@ namespace FCG.Api.Controllers
         }
 
         [HttpGet("ObterJogoPorTitulo")]
-        [SwaggerOperation(Summary = "Obtém um jogo pelo título", Description = "Busca um jogo específico com base no título informado.")]
+        [SwaggerOperation(Summary = "Obtém um jogo pelo título", 
+                          Description = "Busca um jogo específico com base no título informado.")]
         public async Task<IActionResult> ObterJogoPorTitulo(string titulo)
         {
             var jogo = await _jogo.ObterJogoPorTitulo(titulo);
@@ -34,7 +36,8 @@ namespace FCG.Api.Controllers
         }
 
         [HttpGet("ObterJogos")]
-        [SwaggerOperation(Summary = "Obtém todos os jogos", Description = "Retorna uma lista de todos os jogos disponíveis.")]
+        [SwaggerOperation(Summary = "Obtém todos os jogos", 
+                          Description = "Retorna uma lista de todos os jogos disponíveis (ativos e não ativos).")]
         public async Task<IActionResult> ObterJogos()
         {
             var jogos = await _jogo.ObterJogos();
@@ -44,7 +47,8 @@ namespace FCG.Api.Controllers
         }
 
         [HttpGet("ObterJogosAtivos")]
-        [SwaggerOperation(Summary = "Obtém todos os jogos ativos", Description = "Retorna uma lista com todos os jogos que estão ativos.")]
+        [SwaggerOperation(Summary = "Obtém todos os jogos ativos", 
+                          Description = "Retorna uma lista com todos os jogos que estão ativos.")]
         public async Task<IActionResult> ObterJogosAtivos()
         {
             var jogos = await _jogo.ObterJogosAtivos();
@@ -55,7 +59,8 @@ namespace FCG.Api.Controllers
 
         [Authorize(Roles = "Administrador")]
         [HttpPost("AdicionarJogo")]
-        [SwaggerOperation(Summary = "Adiciona um novo jogo", Description = "Permite que administradores adicionem um novo jogo à plataforma.")]
+        [SwaggerOperation(Summary = "Adiciona um novo jogo", 
+                          Description = "Permite que administradores adicionem um novo jogo à plataforma.")]
         public async Task<IActionResult> AdicionarJogo(JogoAdicionarDto jogo)
         {
             if (!ValidarModelo())
@@ -67,7 +72,8 @@ namespace FCG.Api.Controllers
 
         [Authorize(Roles = "Administrador")]
         [HttpPut("AlterarJogo")]
-        [SwaggerOperation(Summary = "Altera um jogo existente", Description = "Permite que administradores alterem os detalhes de um jogo.")]
+        [SwaggerOperation(Summary = "Altera um jogo existente", 
+                          Description = "Permite que administradores alterem os detalhes de um jogo.")]
         public async Task<IActionResult> AlterarJogo(JogoAlterarDto jogo)
         {
             if (!ValidarModelo())
@@ -79,7 +85,8 @@ namespace FCG.Api.Controllers
 
         [Authorize(Roles = "Administrador")]
         [HttpPut("AtivarJogo")]
-        [SwaggerOperation(Summary = "Ativa um jogo", Description = "Permite que administradores ativem um jogo específico.")]
+        [SwaggerOperation(Summary = "Ativa um jogo", 
+                          Description = "Permite que administradores ativem um jogo específico.")]
         public async Task<IActionResult> AtivarJogo(Guid jogoId)
         {
             await _jogo.AtivarJogo(jogoId);
@@ -88,7 +95,8 @@ namespace FCG.Api.Controllers
 
         [Authorize(Roles = "Administrador")]
         [HttpPut("DesativarJogo")]
-        [SwaggerOperation(Summary = "Desativa um jogo", Description = "Permite que administradores desativem um jogo específico.")]
+        [SwaggerOperation(Summary = "Desativa um jogo", 
+                          Description = "Permite que administradores desativem um jogo específico.")]
         public async Task<IActionResult> DesativarJogo(Guid jogoId)
         {
             await _jogo.DesativarJogo(jogoId);

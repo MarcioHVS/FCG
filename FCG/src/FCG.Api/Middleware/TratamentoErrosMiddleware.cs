@@ -1,4 +1,5 @@
 ﻿using FCG.Domain.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace FCG.Api.Middleware
 {
@@ -23,13 +24,21 @@ namespace FCG.Api.Middleware
             {
                 await RegistrarErroAsync(context, ex, StatusCodes.Status409Conflict, ex.Message);
             }
-            catch (OperacaoInvalidaException ex)
+            catch (InvalidOperationException ex)
             {
-                await RegistrarErroAsync(context, ex, StatusCodes.Status422UnprocessableEntity, ex.Message);
+                await RegistrarErroAsync(context, ex, StatusCodes.Status400BadRequest, ex.Message);
+            }
+            catch (NotImplementedException ex)
+            {
+                await RegistrarErroAsync(context, ex, StatusCodes.Status501NotImplemented, "Recurso não implementado");
             }
             catch (ArgumentNullException ex)
             {
                 await RegistrarErroAsync(context, ex, StatusCodes.Status400BadRequest, "Parâmetro ausente ou inválido");
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                await RegistrarErroAsync(context, ex, StatusCodes.Status400BadRequest, "Valor fora do intervalo");
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -39,9 +48,9 @@ namespace FCG.Api.Middleware
             {
                 await RegistrarErroAsync(context, ex, StatusCodes.Status404NotFound, "Recurso não encontrado");
             }
-            catch (CredenciaisInvalidasException ex)
+            catch (DbUpdateException ex)
             {
-                await RegistrarErroAsync(context, ex, StatusCodes.Status401Unauthorized, ex.Message);
+                await RegistrarErroAsync(context, ex, StatusCodes.Status409Conflict, "Erro ao tentar gravar os dados");
             }
             catch (Exception ex)
             {

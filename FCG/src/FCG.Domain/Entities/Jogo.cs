@@ -9,7 +9,7 @@ namespace FCG.Domain.Entities
         public Genero Genero { get; private set; }
         public decimal Valor { get; private set; }
 
-        public ICollection<Pedido> Pedidos { get; set; }
+        public ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
 
         //EF
         protected Jogo() { }

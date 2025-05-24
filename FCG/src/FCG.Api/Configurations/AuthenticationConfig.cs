@@ -8,7 +8,9 @@ namespace FCG.Api.Configurations
     {
         public static void AddAuthenticationConfiguration(this WebApplicationBuilder builder)
         {
-            var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:SecretKey"]);
+            var secretKey = builder.Configuration["JwtSettings:SecretKey"]
+                            ?? throw new InvalidOperationException("SecretKey não foi configurada corretamente.");
+            var key = Encoding.ASCII.GetBytes(secretKey);
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>

@@ -71,7 +71,7 @@ namespace FCG.Application.Services
         {
             var jogo = await _validationService.ObterJogoPorId(pedido.JogoId);
             if (!jogo.Ativo)
-                throw new OperacaoInvalidaException("Este jogo não está disponível para compra.");
+                throw new InvalidOperationException("Este jogo não está disponível para compra.");
 
             var teste = await _validationService.ObterPromocaoPorCupom(cupom);
 

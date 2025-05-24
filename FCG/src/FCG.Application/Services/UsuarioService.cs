@@ -2,7 +2,6 @@
 using FCG.Application.Interfaces;
 using FCG.Application.Mappers;
 using FCG.Domain.Entities;
-using FCG.Domain.Exceptions;
 using FCG.Domain.Interfaces;
 
 namespace FCG.Application.Services
@@ -32,7 +31,7 @@ namespace FCG.Application.Services
             var usuario = await ValidarAcesso(login.Apelido, login.Senha, true);
 
             if (!usuario.ValidarCodigoAtivacao(login.CodigoAtivacao))
-                throw new OperacaoInvalidaException("Código de ativação inválido");
+                throw new InvalidOperationException("Código de ativação inválido");
 
             usuario.ZerarTentativasLoginErrada();
             usuario.LimparCodigoAtivacao();
@@ -45,10 +44,10 @@ namespace FCG.Application.Services
         public async Task<string> LoginNovaSenha(LoginNovaSenhaDto login)
         {
             var usuario = await _usuarioRepository.ObterPorApelido(login.Apelido)
-                ?? throw new OperacaoInvalidaException("Usuário ou Código inválido");
+                ?? throw new InvalidOperationException("Usuário ou Código inválido");
 
             if(!usuario.ValidarCodigoValidacao(login.CodigoValidacao))
-                throw new OperacaoInvalidaException("Usuário ou Código inválido");
+                throw new InvalidOperationException("Usuário ou Código inválido");
 
             usuario.AlterarSenha(login.NovaSenha);
             usuario.ZerarTentativasLoginErrada();
@@ -62,7 +61,7 @@ namespace FCG.Application.Services
         public async Task SolicitarNovaSenha(string email)
         {
             var usuario = await _usuarioRepository.ObterPorEmail(email)
-                ?? throw new OperacaoInvalidaException("E-mail não encontrado");
+                ?? throw new KeyNotFoundException("E-mail não encontrado");
 
             usuario.GerarCodigoValidacao();
             await _usuarioRepository.Alterar(usuario);
@@ -73,10 +72,10 @@ namespace FCG.Application.Services
         public async Task SolicitarReativacao(string email)
         {
             var usuario = await _usuarioRepository.ObterPorEmail(email)
-                ?? throw new OperacaoInvalidaException("E-mail não encontrado");
+                ?? throw new KeyNotFoundException("E-mail não encontrado");
 
             if(usuario.Ativo)
-                throw new OperacaoInvalidaException("Sua conta já se encontra ativa");
+                throw new InvalidOperationException("Sua conta já se encontra ativa");
 
             usuario.GerarCodigoAtivacao();
             await _usuarioRepository.Alterar(usuario);
@@ -125,7 +124,7 @@ namespace FCG.Application.Services
         public async Task<UsuarioResponseDto> ObterUsuarioPorEmail(string email)
         {
             var usuario = await _usuarioRepository.ObterPorEmail(email)
-                ?? throw new KeyNotFoundException("Usuário não encontrado com o Email informado");
+                ?? throw new KeyNotFoundException("Usuário não encontrado com o e-mail informado");
 
             return usuario.ToDto();
         }
@@ -193,7 +192,7 @@ namespace FCG.Application.Services
             if (!ehLoginAtivacao)
             {
                 if (!usuario.Ativo)
-                    throw new OperacaoInvalidaException("Sua conta está bloqueada. Solicite a reativação da conta ou redefinir sua senha.");
+                    throw new UnauthorizedAccessException("Sua conta está bloqueada. Solicite a reativação da conta ou redefinir sua senha.");
             }
 
             if (!usuario.ValidarSenha(senha))

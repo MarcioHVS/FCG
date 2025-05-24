@@ -12,7 +12,9 @@ namespace FCG.Api.Configurations
     {
         public static WebApplicationBuilder RegisterDependencies(this WebApplicationBuilder builder)
         {
-            var emailSettings = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>();
+            var emailSettings = builder.Configuration.GetSection("EmailSettings").Get<EmailSettings>()
+                                ?? throw new InvalidOperationException("Configuração de e-mail inválida.");
+
             var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
             if (jwtSettings is null || string.IsNullOrEmpty(jwtSettings.SecretKey))

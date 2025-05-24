@@ -1,5 +1,4 @@
-﻿using FCG.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace FCG.Application.DTOs
 {

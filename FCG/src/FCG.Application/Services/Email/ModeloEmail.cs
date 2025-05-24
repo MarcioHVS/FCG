@@ -1,5 +1,4 @@
 ﻿using FCG.Application.Interfaces;
-using System.Runtime.Intrinsics.X86;
 
 namespace FCG.Application.Services.Email
 {
@@ -19,7 +18,7 @@ namespace FCG.Application.Services.Email
             <html>
                 <body>
                     <h1>Olá, {nome}!</h1>
-                    <p>Para ativar a sua conta você precisa realizar um novo login informando o código de ativação.</p>
+                    <p>Para ativar a sua conta você precisa realizar um login informando o código de ativação.</p>
                     <p>Seu código de ativação é: <strong>{codigoAtivacao}</strong></p>
                 </body>
             </html>";

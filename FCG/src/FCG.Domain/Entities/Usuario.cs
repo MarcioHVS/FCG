@@ -1,5 +1,4 @@
 ﻿using FCG.Domain.Enums;
-using FCG.Domain.Exceptions;
 using Isopoh.Cryptography.Argon2;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
@@ -17,7 +16,7 @@ namespace FCG.Domain.Entities
         public int TentativasLogin { get; private set; }
         public string CodigoAtivacao { get; private set; }
         public string CodigoValidacao { get; private set; }
-        public ICollection<Pedido> Pedidos { get; set; }
+        public ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
 
         // EF
         protected Usuario() { }
@@ -44,14 +43,14 @@ namespace FCG.Domain.Entities
         public static Usuario CriarAlterar(Guid? id, string nome, string apelido, string email, string senha)
         {
             if (!ValidarEmail(email))
-                throw new OperacaoInvalidaException("Endereço de e-mail inválido.");
+                throw new InvalidOperationException("Endereço de e-mail inválido.");
 
             string senhaHash = string.Empty, salt = string.Empty;
 
             if (id == null)
             {
                 if (!ValidarSenhaForte(senha))
-                    throw new OperacaoInvalidaException("A senha deve conter pelo menos uma letra, um número e um caractere especial.");
+                    throw new InvalidOperationException("A senha deve conter pelo menos uma letra, um número e um caractere especial.");
 
                 (senhaHash, salt) = GerarHashSenha(senha);
             }
@@ -62,7 +61,7 @@ namespace FCG.Domain.Entities
         public void AlterarSenha(string novaSenha)
         {
             if (!ValidarSenhaForte(novaSenha))
-                throw new OperacaoInvalidaException("A senha deve conter pelo menos uma letra, um número e um caractere especial.");
+                throw new InvalidOperationException("A senha deve conter pelo menos uma letra, um número e um caractere especial.");
 
             (Senha, Salt) = GerarHashSenha(novaSenha);
         }

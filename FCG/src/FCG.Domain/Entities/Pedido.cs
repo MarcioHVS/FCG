@@ -1,5 +1,4 @@
 ﻿using FCG.Domain.Enums;
-using FCG.Domain.Exceptions;
 
 namespace FCG.Domain.Entities
 {
@@ -9,8 +8,8 @@ namespace FCG.Domain.Entities
         public Guid JogoId { get; private set; }
         public decimal Valor { get; private set; }
 
-        public Usuario Usuario { get; set; }
-        public Jogo Jogo { get; set; }
+        public Usuario? Usuario { get; set; }
+        public Jogo? Jogo { get; set; }
 
         //EF
         protected Pedido() { }
@@ -31,7 +30,7 @@ namespace FCG.Domain.Entities
         {
             if (valor < 0)
             {
-                throw new OperacaoInvalidaException("O valor do jogo deve ser maior ou igual a zero.");
+                throw new InvalidOperationException("O valor do jogo deve ser maior ou igual a zero.");
             }
 
             switch (tipoDesconto)
@@ -43,7 +42,7 @@ namespace FCG.Domain.Entities
                 case TipoDesconto.Percentual:
                     if (desconto < 0 || desconto > 100)
                     {
-                        throw new OperacaoInvalidaException("O desconto percentual deve estar entre 0 e 100.");
+                        throw new InvalidOperationException("O desconto percentual deve estar entre 0 e 100.");
                     }
 
                     var valorComDesconto = valor - (valor * (desconto / 100));
@@ -51,7 +50,7 @@ namespace FCG.Domain.Entities
                     break;
 
                 default:
-                    throw new OperacaoInvalidaException("Tipo de desconto inválido.");
+                    throw new InvalidOperationException("Tipo de desconto inválido.");
             }
         }
     }

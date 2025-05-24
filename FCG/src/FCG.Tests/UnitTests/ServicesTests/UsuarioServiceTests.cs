@@ -2,7 +2,6 @@
 using FCG.Application.Interfaces;
 using FCG.Application.Services;
 using FCG.Domain.Entities;
-using FCG.Domain.Exceptions;
 using FCG.Domain.Interfaces;
 using Moq;
 using Xunit;
@@ -93,7 +92,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
             var loginDto = new LoginDto { Apelido = usuario.Apelido, Senha = usuario.Senha };
 
             // Act & Assert
-            await Assert.ThrowsAsync<OperacaoInvalidaException>(() => _usuarioService.Login(loginDto));
+            await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _usuarioService.Login(loginDto));
         }
         #endregion
 
@@ -164,7 +163,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _usuarioRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Usuario>())).Returns(Task.CompletedTask);
 
             // Act & Assert
-            await Assert.ThrowsAsync<OperacaoInvalidaException>(() => _usuarioService.AdicionarUsuario(usuarioDto));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _usuarioService.AdicionarUsuario(usuarioDto));
         }
 
         [Fact]
@@ -182,7 +181,7 @@ namespace FCG.Tests.UnitTests.ServicesTests
             _usuarioRepositoryMock.Setup(repo => repo.Adicionar(It.IsAny<Usuario>())).Returns(Task.CompletedTask);
 
             // Act & Assert
-            await Assert.ThrowsAsync<OperacaoInvalidaException>(() => _usuarioService.AdicionarUsuario(usuarioDto));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _usuarioService.AdicionarUsuario(usuarioDto));
         }
         #endregion
 
